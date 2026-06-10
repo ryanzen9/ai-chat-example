@@ -1,1 +1,92 @@
+@source "../node_modules/@cloudflare/kumo/dist/**/*.{js,jsx,ts,tsx}";
+@import "@cloudflare/kumo/styles/tailwind";
 @import "tailwindcss";
+@import "tailwindcss";
+
+:root {
+  /* =========================
+   * Background & Surface
+   * ========================= */
+
+  /* 页面最深层背景（App Root） */
+  --background-deep: #0a0a0a;
+
+  /* 一级表面（Sidebar、Main Layout） */
+  --surface: #131313;
+
+  /* 二级表面（Card、Panel） */
+  --surface-card: #1a1a1a;
+
+  /* 容器背景（Input、List、Message） */
+  --surface-container: #201f1f;
+
+  /* 高强调容器（Hover、Active、Dropdown） */
+  --surface-container-high: #2a2a2a;
+
+  /* =========================
+   * Border
+   * ========================= */
+
+  /* 默认边框 */
+  --border-subtle: #2e2e2e;
+
+  /* Hover / Focus 边框 */
+  --border-hover: #4a4a4a;
+
+  /* =========================
+   * Brand / Primary
+   * ========================= */
+
+  /* 主品牌色（按钮、链接、高亮） */
+  --primary: #ffb787;
+
+  /* 主品牌容器色（选中态、背景块） */
+  --primary-container: #f38020;
+
+  /* =========================
+   * Typography
+   * ========================= */
+
+  /* 主要文字 */
+  --text-primary: #ffffff;
+
+  /* 次级文字 */
+  --text-secondary: #94a3b8;
+
+  /* 弱化文字 / Placeholder */
+  --text-muted: #6b7280;
+
+  /* =========================
+   * Layout
+   * ========================= */
+
+  /* 左侧导航栏宽度 */
+  --sidebar-width: 280px;
+
+  /* 顶部导航栏高度 */
+  --topbar-height: 60px;
+
+  /* 聊天输入区最大宽度 */
+  --composer-width: 860px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background-deep);
+  color: var(--text-primary);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.mono {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
