@@ -1,5 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getPromptCards, getSessionItems, sendFakeMessage } from "./mock";
+import {
+  getChatMessages,
+  getChatSessions,
+  getPromptCards,
+  sendFakeMessage,
+} from "./mock";
 
 export function usePromptCards() {
   return useQuery({
@@ -8,10 +13,18 @@ export function usePromptCards() {
   });
 }
 
-export function useSessionItems() {
+export function useChatSessions() {
   return useQuery({
-    queryKey: ["session-items"],
-    queryFn: getSessionItems,
+    queryKey: ["chat-sessions"],
+    queryFn: getChatSessions,
+  });
+}
+
+export function useChatMessages(sessionId: string | null) {
+  return useQuery({
+    queryKey: ["chat-messages", sessionId],
+    queryFn: () => getChatMessages(sessionId!),
+    enabled: Boolean(sessionId),
   });
 }
 

@@ -1,7 +1,7 @@
 import { Tabs as KumoTabs } from "@cloudflare/kumo";
 import { AppWindowIcon, CodeIcon } from "@phosphor-icons/react";
 import { Tabs, TabsList, TabsTrigger } from "@shared/ui/tabs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useChatStore } from "../store";
 import type { ModelId } from "../types";
 
@@ -19,15 +19,18 @@ function ModelTabs({
   onModelChange?: (modelId: ModelId) => void;
 }) {
   const defaultModel = models[0];
+  const selectedModel = useChatStore((state) => state.selectedModel);
+  const setSelectedModel = useChatStore((state) => state.setSelectedModel);
+
   if (models.length === 0) {
     return <div className="animate-pulse">loading</div>;
   }
 
-  const selectedModel = useChatStore((state) => state.selectedModel);
-  const setSelectedModel = useChatStore((state) => state.setSelectedModel);
-  if (!selectedModel) {
-    setSelectedModel(defaultModel.id);
-  }
+  useEffect(() => {
+    if (defaultModel) {
+      setSelectedModel(defaultModel.id);
+    }
+  }, []);
 
   function handleModelChange(value: string) {
     setSelectedModel(value as ModelId);

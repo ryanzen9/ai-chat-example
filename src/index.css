@@ -109,19 +109,6 @@
   --app-brand-soft: var(--orange-900);
   --app-brand-border: var(--orange-600);
   --app-brand-muted: var(--orange-800);
-
-  /* Backward-compatible aliases while components migrate. */
-  --background-deep: var(--app-canvas);
-  --surface: var(--app-shell);
-  --surface-card: var(--app-sidebar);
-  --surface-container: var(--app-panel);
-  --surface-container-high: var(--app-panel-hover);
-  --border-subtle: var(--app-border-subtle);
-  --border-hover: var(--app-border-hover);
-  --primary-container: var(--primary);
-  --text-primary: var(--foreground);
-  --text-secondary: var(--muted-foreground);
-  --text-muted: var(--slate-500);
 }
 
 html,

@@ -1,9 +1,9 @@
-import type { SessionItem } from "../types";
+import type { ChatSession } from "../types";
 
 interface SessionProps {
-  session: SessionItem;
+  session: ChatSession;
   active?: boolean;
-  onClick?: (session: SessionItem) => void;
+  onClick?: (session: ChatSession) => void;
 }
 
 function Session({ session, active = false, onClick }: SessionProps) {

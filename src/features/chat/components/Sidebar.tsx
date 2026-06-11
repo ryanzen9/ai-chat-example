@@ -1,22 +1,35 @@
 import { CloudIcon, GearSixIcon, GithubLogoIcon } from "@phosphor-icons/react";
 import Button from "@shared/ui/components/Button";
-import { useState } from "react";
-import { useSessionItems } from "../hooks";
+import { useChatSessions } from "../hooks";
 import { useChatStore } from "../store";
-import type { SessionItem } from "../types";
+import type { ChatSession } from "../types";
 import Session from "./Session";
 
 function Sidebar() {
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const clearMessages = useChatStore((state) => state.clearMessages);
+  const currentSessionId = useChatStore((state) => state.currentSessionId);
+  const setCurrentSessionId = useChatStore(
+    (state) => state.setCurrentSessionId,
+  );
+  const setSessions = useChatStore((state) => state.setSessions);
 
-  const { data, isLoading } = useSessionItems();
-  const sessionItems = data || [];
+  const sessions = useChatStore((state) => state.sessions);
+
+  const { data, isLoading } = useChatSessions();
+
+  if (data) {
+    setSessions(data || []);
+  }
 
   function newChatClickHandler() {
     // 清空当前界面缓存
     clearMessages();
     setCurrentSessionId(null);
+  }
+
+  function sessionClickHandler(session: ChatSession) {
+    clearMessages();
+    setCurrentSessionId(session.id);
   }
 
   return (
@@ -52,15 +65,13 @@ function Sidebar() {
                 <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
                 <span className="text-sm">Loading...</span>
               </div>
-            ) : sessionItems.length > 0 ? (
-              sessionItems.map((item) => (
+            ) : sessions.length > 0 ? (
+              sessions.map((item) => (
                 <Session
                   key={item.id}
                   session={item}
                   active={currentSessionId === item.id}
-                  onClick={(session: SessionItem) =>
-                    setCurrentSessionId(session.id)
-                  }
+                  onClick={() => sessionClickHandler(item)}
                 />
               ))
             ) : (
