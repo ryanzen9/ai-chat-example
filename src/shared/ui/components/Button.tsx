@@ -16,7 +16,7 @@ function Button({
         variant={variant}
         icon={PlusIcon}
         onClick={handleClick}
-        className="h-9 w-full !justify-center !rounded !bg-[var(--primary-container)] !text-white hover:!brightness-95"
+        className="h-9 w-full !justify-center !rounded-md !bg-primary !text-primary-foreground hover:!brightness-95"
       >
         {children}
       </KumoButton>

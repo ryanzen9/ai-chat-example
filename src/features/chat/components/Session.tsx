@@ -23,8 +23,8 @@ function Session({ session, active = false, onClick }: SessionProps) {
         transition-colors
         ${
           active
-            ? "bg-[var(--surface-container-high)] text-[var(--primary-container)]"
-            : "text-[var(--text-secondary)] hover:bg-[var(--surface-container)] hover:text-[var(--text-primary)]"
+            ? "bg-accent text-primary"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
         }
       `}
     >

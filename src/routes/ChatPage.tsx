@@ -1,6 +1,10 @@
-import { Button, InputArea, Tabs } from "@cloudflare/kumo";
+import Sidebar from "@/features/chat/components/Sidebar";
+import TopModelBar from "@/features/chat/components/TopModelBar";
+import { usePromptCards, useSendMessage } from "@/features/chat/hooks";
+import { useChatStore } from "@/features/chat/store";
+import type { ChatMessage, PromptCard } from "@/features/chat/types";
+import { Button, InputArea } from "@cloudflare/kumo";
 import {
-  BracketsCurlyIcon,
   CodeIcon,
   MagnifyingGlassIcon,
   PaperPlaneTiltIcon,
@@ -8,53 +12,16 @@ import {
   ShareNetworkIcon,
   TerminalWindowIcon,
 } from "@phosphor-icons/react";
-import Sidebar from "../features/chat/components/Sidebar";
-
-import { usePromptCards, useSendMessage } from "../features/chat/hooks";
-import { useChatStore } from "../features/chat/store";
-import type { ChatMessage, ModelId, PromptCard } from "../features/chat/types";
-
-const modelTabs = [
-  { value: "deepseek-v3", label: "DeepSeek-V3" },
-  { value: "gpt-4o", label: "GPT-4o" },
-  { value: "claude-3.5", label: "Claude-3.5" },
-];
 
 export function ChatPage() {
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--background-deep)] text-[var(--text-primary)]">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground">
       <Sidebar />
-      <main className="flex min-w-0 flex-1 flex-col border-l border-[var(--border-subtle)] bg-[var(--surface)]">
+      <main className="flex min-w-0 flex-1 flex-col border-l border-border bg-[var(--app-shell)]">
         <TopModelBar />
         <ChatWorkspace />
       </main>
     </div>
-  );
-}
-
-function TopModelBar() {
-  const selectedModel = useChatStore((state) => state.selectedModel);
-  const setSelectedModel = useChatStore((state) => state.setSelectedModel);
-
-  return (
-    <header className="relative flex h-[var(--topbar-height)] items-center border-b border-[var(--border-subtle)] bg-[var(--surface)]">
-      <div className="absolute left-1/2 top-0 flex h-full -translate-x-1/2 items-center">
-        <Tabs
-          variant="underline"
-          value={selectedModel}
-          onValueChange={(value) => setSelectedModel(value as ModelId)}
-          tabs={modelTabs}
-          className="h-full"
-          listClassName="h-full gap-8 bg-transparent"
-          indicatorClassName="!bg-[var(--primary-container)]"
-        />
-      </div>
-
-      <div className="ml-auto flex items-center gap-5 px-6 text-[#cbd5e1]">
-        <TerminalWindowIcon size={18} />
-        <BracketsCurlyIcon size={18} />
-      </div>
-    </header>
   );
 }
 
@@ -79,21 +46,21 @@ function EmptyState() {
   return (
     <div className="mx-auto flex h-full max-w-[860px] flex-col justify-center pb-32">
       <div className="flex items-center gap-4">
-        <div className="flex h-[52px] w-[52px] items-center justify-center rounded border border-[var(--border-subtle)] bg-[var(--surface-card)]">
+        <div className="flex h-[52px] w-[52px] items-center justify-center rounded-md border border-border bg-card text-primary">
           <MagnifyingGlassIcon size={30} weight="bold" />
         </div>
 
-        <h1 className="text-[40px] font-semibold leading-[48px] tracking-[-0.02em] text-white">
+        <h1 className="text-[40px] font-semibold leading-[48px] tracking-[-0.02em] text-foreground">
           How can I help you today?
         </h1>
       </div>
 
-      <p className="mt-5 text-base leading-6 text-[#cbd5e1]">
+      <p className="mt-5 text-base leading-6 text-muted-foreground">
         Engage with KUMO AI for code generation, complex problem solving, or
         creative exploration.
       </p>
 
-      <div className="mt-9 h-px bg-[var(--border-subtle)]" />
+      <div className="mt-9 h-px bg-border" />
 
       <div className="mt-8 grid grid-cols-3 gap-4">
         {isLoading ? (
@@ -112,7 +79,7 @@ function EmptyState() {
 
 function PromptSkeleton() {
   return (
-    <div className="h-[106px] animate-pulse rounded border border-[var(--border-subtle)] bg-[var(--surface-card)]" />
+    <div className="h-[106px] animate-pulse rounded-md border border-border bg-card" />
   );
 }
 
@@ -130,17 +97,17 @@ function PromptCardItem({ card }: { card: PromptCard }) {
   return (
     <button
       onClick={() => setDraft(card.description)}
-      className="group h-[106px] rounded border border-[var(--border-subtle)] bg-[var(--surface-card)] px-5 py-4 text-left transition hover:border-[var(--border-hover)] hover:bg-[var(--surface-container)]"
+      className="group h-[106px] rounded-md border border-border bg-card px-5 py-4 text-left transition hover:border-[var(--app-border-hover)] hover:bg-muted"
     >
-      <div className="flex items-center gap-2 text-sm font-semibold text-white">
+      <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <Icon
           size={17}
-          className="text-[var(--primary-container)] group-hover:scale-105"
+          className="text-primary transition-transform group-hover:scale-105"
         />
         {card.title}
       </div>
 
-      <p className="mt-3 text-sm leading-5 text-[#cbd5e1]">
+      <p className="mt-3 text-sm leading-5 text-muted-foreground">
         {card.description}
       </p>
     </button>
@@ -168,8 +135,8 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         className={[
           "max-w-[72%] whitespace-pre-wrap rounded border px-4 py-3 text-sm leading-6",
           isUser
-            ? "border-[#964900] bg-[#502400] text-white"
-            : "border-[var(--border-subtle)] bg-[var(--surface-card)] text-[#e5e7eb]",
+            ? "border-[var(--app-brand-border)] bg-[var(--app-brand-soft)] text-foreground"
+            : "border-border bg-card text-card-foreground",
         ].join(" ")}
       >
         {message.content}
@@ -214,8 +181,11 @@ function ChatComposer() {
       onSubmit={handleSubmit}
       className="absolute bottom-5 left-1/2 w-[min(var(--composer-width),calc(100%-48px))] -translate-x-1/2"
     >
-      <div className="flex min-h-[60px] items-center gap-4 rounded border border-[var(--border-subtle)] bg-[#111111] px-4 py-3 transition focus-within:border-[var(--primary-container)]">
-        <TerminalWindowIcon size={20} className="shrink-0 text-[#cbd5e1]" />
+      <div className="flex min-h-[60px] items-center gap-4 rounded-md border border-border bg-input px-4 py-3 transition focus-within:border-ring">
+        <TerminalWindowIcon
+          size={20}
+          className="shrink-0 text-muted-foreground"
+        />
 
         <InputArea
           rows={1}
@@ -229,7 +199,7 @@ function ChatComposer() {
           }}
           placeholder="Message KUMO AI..."
           aria-label="Message KUMO AI"
-          className="!min-h-[28px] flex-1 !resize-none !border-0 !bg-transparent !px-0 !py-0 !text-base !text-white !outline-none placeholder:!text-[#9ca3af]"
+          className="!min-h-[28px] flex-1 !resize-none !border-0 !bg-transparent !px-0 !py-0 !text-base !text-foreground !outline-none placeholder:!text-muted-foreground"
         />
 
         <Button
@@ -239,7 +209,7 @@ function ChatComposer() {
           icon={PaperPlaneTiltIcon}
           aria-label="Send message"
           loading={sendMessage.isPending}
-          className="!text-[var(--primary-container)] hover:!bg-[#ffffff10]"
+          className="!text-primary hover:!bg-accent"
         />
       </div>
     </form>

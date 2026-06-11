@@ -8,7 +8,6 @@ import Session from "./Session";
 
 function Sidebar() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
-  const [sessions, setSessions] = useState<SessionItem[]>([]); // Placeholder for session data
   const clearMessages = useChatStore((state) => state.clearMessages);
 
   const { data, isLoading } = useSessionItems();
@@ -21,9 +20,9 @@ function Sidebar() {
   }
 
   return (
-    <aside className="flex h-screen w-[var(--sidebar-width)] shrink-0 flex-col border-r border-[var(--border-subtle)] bg-[var(--surface-card)]">
-      <div className="flex h-[var(--topbar-height)] items-center gap-3 border-b border-[var(--border-subtle)] px-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded bg-[#502400] text-[var(--primary-container)]">
+    <aside className="flex h-screen w-[var(--sidebar-width)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+      <div className="flex h-[var(--topbar-height)] items-center gap-3 border-b border-sidebar-border px-4">
+        <div className="flex h-8 w-8 items-center justify-center rounded-md bg-[var(--app-brand-soft)] text-primary">
           <CloudIcon size={19} weight="fill" />
         </div>
 
@@ -31,7 +30,7 @@ function Sidebar() {
           <div className="text-[20px] font-semibold leading-6 tracking-[-0.02em]">
             Chat
           </div>
-          <div className="text-sm leading-5 text-[var(--text-secondary)]">
+          <div className="text-sm leading-5 text-muted-foreground">
             Infrastructure Mode
           </div>
         </div>
@@ -42,15 +41,15 @@ function Sidebar() {
           New Chat
         </Button>
 
-        <div className="mt-6 mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-secondary)]">
+        <div className="mt-6 mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Recent Chats
         </div>
 
         <div className="flex min-h-0 flex-1">
-          <div className=" w-full rounded border-[var(--border-subtle)] px-3 py-2 text-sm text-[var(--text-secondary)]">
+          <div className="w-full rounded-md border-border px-3 py-2 text-sm text-muted-foreground">
             {isLoading ? (
-              <div className="flex h-full flex-col items-center justify-center gap-3 text-[var(--text-secondary)]">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--border-subtle)] border-t-[var(--primary-container)]" />
+              <div className="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
                 <span className="text-sm">Loading...</span>
               </div>
             ) : sessionItems.length > 0 ? (
@@ -77,13 +76,13 @@ function Sidebar() {
         </nav> */}
       </div>
 
-      <div className="border-t border-[var(--border-subtle)] px-4 py-4">
-        <button className="flex h-10 w-full items-center gap-3 rounded px-1 text-left text-[15px] font-semibold text-[#cbd5e1] hover:text-white">
+      <div className="border-t border-sidebar-border px-4 py-4">
+        <button className="flex h-10 w-full items-center gap-3 rounded-md px-1 text-left text-[15px] font-semibold text-muted-foreground transition-colors hover:text-foreground">
           <GearSixIcon size={18} />
           Configuration
         </button>
 
-        <button className="flex h-10 w-full items-center gap-3 rounded px-1 text-left text-[15px] font-semibold text-[#cbd5e1] hover:text-white">
+        <button className="flex h-10 w-full items-center gap-3 rounded-md px-1 text-left text-[15px] font-semibold text-muted-foreground transition-colors hover:text-foreground">
           <GithubLogoIcon size={18} />
           Github
         </button>

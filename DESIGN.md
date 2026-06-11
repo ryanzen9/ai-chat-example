@@ -16,7 +16,7 @@ colors:
   outline: "#a58c7d"
   outline-variant: "#564336"
   surface-tint: "#ffb787"
-  primary: "#ffb787"
+  primary: "#f38020"
   on-primary: "#502400"
   primary-container: "#f38020"
   on-primary-container: "#592900"
@@ -129,6 +129,27 @@ The palette is optimized for a technical dark mode environment.
 - **Neutral Foundation (#111111):** The primary background color. Use `#0A0A0A` for the furthest background layers (the "canvas") and `#1A1A1A` for elevated surfaces like cards or sidebars.
 - **Slate Grays:** Utilized for secondary text and borders to maintain a hierarchy that doesn't compete with the primary white-on-charcoal contrast.
 - **Contrast:** Maintain a strict AAA contrast ratio for all body text against the deep charcoal backgrounds.
+
+### Implementation Contract
+
+The app uses shadcn-compatible semantic tokens as the global theme contract. New UI code should prefer Tailwind token utilities instead of raw hex values:
+
+- `bg-background text-foreground` for the app canvas.
+- `bg-card text-card-foreground border-border` for cards, panels, and assistant messages.
+- `bg-muted text-muted-foreground` for subdued containers and secondary text.
+- `bg-primary text-primary-foreground`, `text-primary`, and `border-primary` for brand emphasis and active states.
+- `bg-input border-border focus-within:border-ring` for inputs and composers.
+
+App-specific layer aliases are reserved for shell structure only:
+
+- `--app-canvas`: deepest page background.
+- `--app-shell`: main workspace and top bar.
+- `--app-sidebar`: sidebar surface.
+- `--app-panel`: compact internal panels.
+- `--app-panel-hover`: hover/active neutral fill.
+- `--app-brand-soft` and `--app-brand-border`: user-message and logo accent surfaces.
+
+Avoid adding new component-level colors such as `#cbd5e1`, `#111111`, or `#502400` directly in TSX. Add a semantic token first, then consume it through Tailwind utilities or `var(...)`.
 
 ## Typography
 
