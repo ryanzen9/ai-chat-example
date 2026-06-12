@@ -20,11 +20,11 @@ export function useChatSessions() {
   });
 }
 
-export function useChatMessages(sessionId: string) {
+export function useChatMessages(sessionId: string, enabled = true) {
   return useQuery({
     queryKey: ["chat-messages", sessionId],
     queryFn: () => getChatMessages(sessionId),
-    enabled: Boolean(sessionId),
+    enabled: Boolean(sessionId) && enabled,
   });
 }
 

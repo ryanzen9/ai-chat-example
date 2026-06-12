@@ -1,4 +1,5 @@
 import {
+  useChatMessages,
   usePromptCards,
   useSendMessage,
 } from "@/features/chat/hooks";
@@ -14,6 +15,7 @@ import {
   PencilSimpleLineIcon,
   ShareNetworkIcon,
 } from "@phosphor-icons/react";
+import { useEffect } from "react";
 import { ChatInput } from "./ChatInput";
 import MessageList from "./MessageList";
 
@@ -27,16 +29,45 @@ function ChatWorkspace() {
   const setCurrentSessionId = useChatStore(
     (state) => state.setCurrentSessionId,
   );
+  const setMessagesBySessionId = useChatStore(
+    (state) => state.setMessageBySessionId,
+  );
   const selectedModel = useChatStore((state) => state.selectedModel);
-
   const addMessage = useChatStore((state) => state.addMessage); // Subscribe to messages changes
   const addSession = useChatStore((state) => state.addSession);
 
+  const shouldLoadMockMessages =
+    Boolean(currentSessionId) &&
+    messagesBySessionId[currentSessionId!] === undefined;
+
+  const { data, isLoading } = useChatMessages(
+    currentSessionId ?? "",
+    shouldLoadMockMessages,
+  );
   const sendMessage = useSendMessage();
+
+  useEffect(() => {
+    if (!data || !currentSessionId) return;
+
+    // 避免重复设置消息列表
+    const hasLocalMessages =
+      (messagesBySessionId[currentSessionId] ?? []).length > 0;
+    if (hasLocalMessages) return;
+
+    setMessagesBySessionId(currentSessionId, data);
+  }, [data, currentSessionId, messagesBySessionId, setMessagesBySessionId]);
 
   const messages = currentSessionId
     ? messagesBySessionId[currentSessionId] || []
     : [];
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-border border-t-transparent" />
+      </div>
+    );
+  }
 
   function onSend(message: string) {
     const messageBody: ChatMessage = {

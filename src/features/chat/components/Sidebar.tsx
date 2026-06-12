@@ -21,7 +21,12 @@ function Sidebar() {
   const { data, isLoading } = useChatSessions();
 
   useEffect(() => {
-    if (data) setSessions(data);
+    // 只在初始加载时设置会话列表
+    if (!data) return;
+    if (sessions.length > 0) return;
+
+    // 非首次直接读取缓存
+    setSessions(data);
   }, [data, setSessions]);
 
   function newChatClickHandler() {
