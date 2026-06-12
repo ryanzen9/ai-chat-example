@@ -2,6 +2,7 @@ import { Tabs as KumoTabs } from "@cloudflare/kumo";
 import { AppWindowIcon, CodeIcon } from "@phosphor-icons/react";
 import { Tabs, TabsList, TabsTrigger } from "@shared/ui/tabs";
 import { useState } from "react";
+import { useCurrentSessionId } from "../hooks";
 import { useChatStore } from "../store";
 import type { ModelId } from "../types";
 
@@ -20,7 +21,7 @@ function ModelTabs({
 }) {
   const selectedModel = useChatStore((state) => state.selectedModel);
   const setSelectedModel = useChatStore((state) => state.setSelectedModel);
-  const currentSessionId = useChatStore((state) => state.currentSessionId);
+  const currentSessionId = useCurrentSessionId();
   const setSessionModelId = useChatStore((state) => state.setSessionModelId);
 
   if (models.length === 0) {

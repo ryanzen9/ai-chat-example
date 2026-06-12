@@ -87,19 +87,26 @@ function ChatWorkspace() {
 
     const sessionId = currentSessionId || session.id;
 
+    if (!currentSessionId) {
+      addSession(session);
+      navigate(`/chat/${sessionId}`, { replace: true });
+    }
+
     setDraft("");
     addMessage(sessionId, messageBody);
 
     sendMessage.mutate(message, {
       onSuccess: (response) => {
-        if (!currentSessionId) {
-          addSession(session);
-          navigate(`/chat/${session.id}`);
-        }
-
         appendMessage(sessionId, response);
       },
-      onError: () => {},
+      onError: () => {
+        appendMessage(sessionId, {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: "发送失败，请稍后重试。",
+          createdAt: new Date().toISOString(),
+        });
+      },
     });
   }
 
