@@ -1,10 +1,15 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router";
 import {
   getChatMessages,
   getChatSessions,
   getPromptCards,
   sendFakeMessage,
 } from "./mock";
+
+export function useCurrentSessionId() {
+  return useParams<string>()["conversationId"];
+}
 
 export function usePromptCards() {
   return useQuery({

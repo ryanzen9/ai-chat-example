@@ -1,24 +1,21 @@
 import { CloudIcon, GearSixIcon, GithubLogoIcon } from "@phosphor-icons/react";
 import Button from "@shared/ui/components/Button";
 import { useEffect } from "react";
-import { useChatSessions } from "../hooks";
+import { useNavigate } from "react-router";
+import { useChatSessions, useCurrentSessionId } from "../hooks";
 import { useChatStore } from "../store";
 import type { ChatSession } from "../types";
 import Session from "./Session";
 
 function Sidebar() {
-  const currentSessionId = useChatStore((state) => state.currentSessionId);
-  const setCurrentSessionId = useChatStore(
-    (state) => state.setCurrentSessionId,
-  );
-  const clearCurrentSession = useChatStore(
-    (state) => state.clearCurrentSession,
-  );
+  const currentSessionId = useCurrentSessionId();
   const setSelectedModel = useChatStore((state) => state.setSelectedModel);
   const setSessions = useChatStore((state) => state.setSessions);
   const sessions = useChatStore((state) => state.sessions);
 
   const { data, isLoading } = useChatSessions(sessions.length === 0);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     // 只在初始加载时设置会话列表
@@ -30,13 +27,13 @@ function Sidebar() {
   }, [data, setSessions, sessions.length]);
 
   function newChatClickHandler() {
-    clearCurrentSession();
     setSelectedModel("deepseek-v3");
+    navigate("/chat");
   }
 
   function sessionClickHandler(session: ChatSession) {
-    setCurrentSessionId(session.id);
     setSelectedModel(session.modelId);
+    navigate(`/chat/${session.id}`);
   }
 
   return (

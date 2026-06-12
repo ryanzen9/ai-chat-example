@@ -1,5 +1,6 @@
 import {
   useChatMessages,
+  useCurrentSessionId,
   usePromptCards,
   useSendMessage,
 } from "@/features/chat/hooks";
@@ -16,6 +17,7 @@ import {
   ShareNetworkIcon,
 } from "@phosphor-icons/react";
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import { ChatInput } from "./ChatInput";
 import MessageList from "./MessageList";
 
@@ -25,10 +27,7 @@ function ChatWorkspace() {
   );
   const draft = useChatStore((state) => state.draft);
   const setDraft = useChatStore((state) => state.setDraft);
-  const currentSessionId = useChatStore((state) => state.currentSessionId);
-  const setCurrentSessionId = useChatStore(
-    (state) => state.setCurrentSessionId,
-  );
+  const currentSessionId = useCurrentSessionId();
   const setMessagesBySessionId = useChatStore(
     (state) => state.setMessageBySessionId,
   );
@@ -36,6 +35,7 @@ function ChatWorkspace() {
   const addMessage = useChatStore((state) => state.addMessage); // Subscribe to messages changes
   const appendMessage = useChatStore((state) => state.appendMessage);
   const addSession = useChatStore((state) => state.addSession);
+  const navigate = useNavigate();
 
   const shouldLoadMockMessages =
     Boolean(currentSessionId) &&
@@ -94,7 +94,7 @@ function ChatWorkspace() {
       onSuccess: (response) => {
         if (!currentSessionId) {
           addSession(session);
-          setCurrentSessionId(session.id);
+          navigate(`/chat/${session.id}`);
         }
 
         appendMessage(sessionId, response);

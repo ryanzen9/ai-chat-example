@@ -56,7 +56,6 @@ export async function getChatMessages(
   sessionId: string,
 ): Promise<ChatMessage[]> {
   await wait(1500);
-  console.log("Fetching messages for session:", sessionId);
 
   if (sessionId === "session-1") {
     return [

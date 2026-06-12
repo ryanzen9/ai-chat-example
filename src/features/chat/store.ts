@@ -4,24 +4,19 @@ import type { ChatMessage, ChatSession, ModelId } from "./types";
 
 type ChatState = {
   selectedModel: ModelId;
-  currentSessionId: string | null;
   draft: string;
   sessions: ChatSession[];
   messagesBySessionId: Record<string, ChatMessage[]>;
 
   setSelectedModel: (model: ModelId) => void;
-  setCurrentSessionId: (sessionId: string) => void;
   setDraft: (draft: string) => void;
   setSessions: (sessions: ChatSession[]) => void;
   setMessageBySessionId: (sessionId: string, messages: ChatMessage[]) => void;
   setSessionModelId: (sessionId: string, modelId: ModelId) => void;
 
-  addMessage: (currentSessionId: string, message: ChatMessage) => void;
+  addMessage: (sessionId: string, message: ChatMessage) => void;
   appendMessage: (sessionId: string, message: ChatMessage) => void;
-
   addSession: (session: ChatSession) => void;
-
-  clearCurrentSession: () => void;
 };
 
 export const useChatStore = create<ChatState>()(
@@ -30,7 +25,6 @@ export const useChatStore = create<ChatState>()(
       (set) => ({
         selectedModel: "deepseek-v3",
         draft: "",
-        currentSessionId: null,
         sessions: [],
         messagesBySessionId: {},
 
@@ -63,12 +57,12 @@ export const useChatStore = create<ChatState>()(
           }));
         },
 
-        addMessage: (currentSessionId: string, message: ChatMessage) => {
+        addMessage: (sessionId: string, message: ChatMessage) => {
           set((state) => ({
             messagesBySessionId: {
               ...state.messagesBySessionId,
-              [currentSessionId]: [
-                ...(state.messagesBySessionId[currentSessionId] || []),
+              [sessionId]: [
+                ...(state.messagesBySessionId[sessionId] || []),
                 message,
               ],
             },
@@ -106,14 +100,6 @@ export const useChatStore = create<ChatState>()(
             sessions: [session, ...state.sessions],
           }));
         },
-
-        setCurrentSessionId: (sessionId) => {
-          set({ currentSessionId: sessionId });
-        },
-
-        clearCurrentSession: () => {
-          set({ currentSessionId: null });
-        },
       }),
       {
         name: "chat-store",
@@ -121,7 +107,6 @@ export const useChatStore = create<ChatState>()(
           selectedModel: state.selectedModel,
           sessions: state.sessions,
           messagesBySessionId: state.messagesBySessionId,
-          currentSessionId: state.currentSessionId,
         }),
       },
     ),
