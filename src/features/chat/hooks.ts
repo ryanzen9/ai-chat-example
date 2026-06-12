@@ -13,10 +13,11 @@ export function usePromptCards() {
   });
 }
 
-export function useChatSessions() {
+export function useChatSessions(enabled = true) {
   return useQuery({
     queryKey: ["chat-sessions"],
     queryFn: getChatSessions,
+    enabled,
   });
 }
 

@@ -34,6 +34,7 @@ function ChatWorkspace() {
   );
   const selectedModel = useChatStore((state) => state.selectedModel);
   const addMessage = useChatStore((state) => state.addMessage); // Subscribe to messages changes
+  const appendMessage = useChatStore((state) => state.appendMessage);
   const addSession = useChatStore((state) => state.addSession);
 
   const shouldLoadMockMessages =
@@ -50,9 +51,8 @@ function ChatWorkspace() {
     if (!data || !currentSessionId) return;
 
     // 避免重复设置消息列表
-    const hasLocalMessages =
-      (messagesBySessionId[currentSessionId] ?? []).length > 0;
-    if (hasLocalMessages) return;
+    const hasInitializedMessages = currentSessionId in messagesBySessionId;
+    if (hasInitializedMessages) return;
 
     setMessagesBySessionId(currentSessionId, data);
   }, [data, currentSessionId, messagesBySessionId, setMessagesBySessionId]);
@@ -92,12 +92,12 @@ function ChatWorkspace() {
 
     sendMessage.mutate(message, {
       onSuccess: (response) => {
-        addMessage(sessionId, response);
-
         if (!currentSessionId) {
           addSession(session);
           setCurrentSessionId(session.id);
         }
+
+        appendMessage(sessionId, response);
       },
       onError: () => {},
     });

@@ -18,7 +18,7 @@ function Sidebar() {
   const setSessions = useChatStore((state) => state.setSessions);
   const sessions = useChatStore((state) => state.sessions);
 
-  const { data, isLoading } = useChatSessions();
+  const { data, isLoading } = useChatSessions(sessions.length === 0);
 
   useEffect(() => {
     // 只在初始加载时设置会话列表
@@ -27,7 +27,7 @@ function Sidebar() {
 
     // 非首次直接读取缓存
     setSessions(data);
-  }, [data, setSessions]);
+  }, [data, setSessions, sessions.length]);
 
   function newChatClickHandler() {
     clearCurrentSession();

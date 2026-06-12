@@ -17,6 +17,8 @@ type ChatState = {
   setSessionModelId: (sessionId: string, modelId: ModelId) => void;
 
   addMessage: (currentSessionId: string, message: ChatMessage) => void;
+  appendMessage: (sessionId: string, message: ChatMessage) => void;
+
   addSession: (session: ChatSession) => void;
 
   clearCurrentSession: () => void;
@@ -71,6 +73,32 @@ export const useChatStore = create<ChatState>()(
               ],
             },
           }));
+        },
+
+        appendMessage: (sessionId: string, message: ChatMessage) => {
+          set((state) => {
+            const sessions = state.sessions.map((session) =>
+              session.id === sessionId
+                ? {
+                    ...session,
+                    title: message.content.slice(0, 20),
+                    lastMessage: message.content,
+                    lastMessageTime: message.createdAt,
+                  }
+                : session,
+            );
+
+            return {
+              sessions: sessions,
+              messagesBySessionId: {
+                ...state.messagesBySessionId,
+                [sessionId]: [
+                  ...(state.messagesBySessionId[sessionId] || []),
+                  message,
+                ],
+              },
+            };
+          });
         },
 
         addSession: (session) => {
