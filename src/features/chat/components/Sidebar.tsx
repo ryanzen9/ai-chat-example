@@ -1,35 +1,37 @@
 import { CloudIcon, GearSixIcon, GithubLogoIcon } from "@phosphor-icons/react";
 import Button from "@shared/ui/components/Button";
+import { useEffect } from "react";
 import { useChatSessions } from "../hooks";
 import { useChatStore } from "../store";
 import type { ChatSession } from "../types";
 import Session from "./Session";
 
 function Sidebar() {
-  const clearMessages = useChatStore((state) => state.clearMessages);
   const currentSessionId = useChatStore((state) => state.currentSessionId);
   const setCurrentSessionId = useChatStore(
     (state) => state.setCurrentSessionId,
   );
+  const clearCurrentSession = useChatStore(
+    (state) => state.clearCurrentSession,
+  );
+  const setSelectedModel = useChatStore((state) => state.setSelectedModel);
   const setSessions = useChatStore((state) => state.setSessions);
-
   const sessions = useChatStore((state) => state.sessions);
 
   const { data, isLoading } = useChatSessions();
 
-  if (data) {
-    setSessions(data || []);
-  }
+  useEffect(() => {
+    if (data) setSessions(data);
+  }, [data, setSessions]);
 
   function newChatClickHandler() {
-    // 清空当前界面缓存
-    clearMessages();
-    setCurrentSessionId(null);
+    clearCurrentSession();
+    setSelectedModel("deepseek-v3");
   }
 
   function sessionClickHandler(session: ChatSession) {
-    clearMessages();
     setCurrentSessionId(session.id);
+    setSelectedModel(session.modelId);
   }
 
   return (

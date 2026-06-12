@@ -1,5 +1,4 @@
 import {
-  useChatMessages,
   usePromptCards,
   useSendMessage,
 } from "@/features/chat/hooks";
@@ -19,37 +18,25 @@ import { ChatInput } from "./ChatInput";
 import MessageList from "./MessageList";
 
 function ChatWorkspace() {
-  const messages = useChatStore((state) => state.messages);
+  const messagesBySessionId = useChatStore(
+    (state) => state.messagesBySessionId,
+  );
   const draft = useChatStore((state) => state.draft);
   const setDraft = useChatStore((state) => state.setDraft);
-  const setMessages = useChatStore((state) => state.setMessages);
-  const addMessage = useChatStore((state) => state.addMessage); // Subscribe to messages changes
   const currentSessionId = useChatStore((state) => state.currentSessionId);
   const setCurrentSessionId = useChatStore(
     (state) => state.setCurrentSessionId,
   );
-
   const selectedModel = useChatStore((state) => state.selectedModel);
+
+  const addMessage = useChatStore((state) => state.addMessage); // Subscribe to messages changes
   const addSession = useChatStore((state) => state.addSession);
+
   const sendMessage = useSendMessage();
-  const { data, isLoading } = useChatMessages(currentSessionId);
 
-  if (isLoading) {
-    return (
-      <>
-        <div className="flex items-center justify-center space-x-2">
-          <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-          <span className="text-sm font-medium text-muted-foreground">
-            加载中...
-          </span>
-        </div>
-      </>
-    );
-  }
-
-  if (data) {
-    setMessages(data);
-  }
+  const messages = currentSessionId
+    ? messagesBySessionId[currentSessionId] || []
+    : [];
 
   function onSend(message: string) {
     const messageBody: ChatMessage = {
@@ -58,29 +45,30 @@ function ChatWorkspace() {
       content: message,
       createdAt: new Date().toISOString(),
     };
+    const session: ChatSession = {
+      id: crypto.randomUUID(),
+      modelId: selectedModel,
+      isWorking: false,
+      title: message,
+      lastMessage: message,
+      lastMessageTime: new Date().toISOString(),
+    };
+
+    const sessionId = currentSessionId || session.id;
+
     setDraft("");
-    addMessage(messageBody);
+    addMessage(sessionId, messageBody);
 
     sendMessage.mutate(message, {
       onSuccess: (response) => {
-        addMessage(response);
+        addMessage(sessionId, response);
 
         if (!currentSessionId) {
-          // 请求成功创建会话
-          const session: ChatSession = {
-            id: crypto.randomUUID(),
-            modelId: selectedModel,
-            isWorking: false,
-            title: message,
-            lastMessage: message,
-            lastMessageTime: new Date().toISOString(),
-          };
-
           addSession(session);
           setCurrentSessionId(session.id);
         }
       },
-      onError: (error) => {},
+      onError: () => {},
     });
   }
 

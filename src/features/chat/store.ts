@@ -6,17 +6,20 @@ type ChatState = {
   selectedModel: ModelId;
   currentSessionId: string | null;
   draft: string;
-  messages: ChatMessage[];
   sessions: ChatSession[];
+  messagesBySessionId: Record<string, ChatMessage[]>;
 
   setSelectedModel: (model: ModelId) => void;
-  setCurrentSessionId: (sessionId: string | null) => void;
+  setCurrentSessionId: (sessionId: string) => void;
   setDraft: (draft: string) => void;
-  setMessages: (messages: ChatMessage[]) => void;
   setSessions: (sessions: ChatSession[]) => void;
-  addMessage: (message: ChatMessage) => void;
+  setMessageBySessionId: (sessionId: string, messages: ChatMessage[]) => void;
+  setSessionModelId: (sessionId: string, modelId: ModelId) => void;
+
+  addMessage: (currentSessionId: string, message: ChatMessage) => void;
   addSession: (session: ChatSession) => void;
-  clearMessages: () => void;
+
+  clearCurrentSession: () => void;
 };
 
 export const useChatStore = create<ChatState>()(
@@ -27,7 +30,7 @@ export const useChatStore = create<ChatState>()(
         draft: "",
         currentSessionId: null,
         sessions: [],
-        messages: [],
+        messagesBySessionId: {},
 
         setSelectedModel: (model) => {
           set({ selectedModel: model });
@@ -37,22 +40,37 @@ export const useChatStore = create<ChatState>()(
           set({ draft });
         },
 
-        setMessages: (messages) => {
-          set({ messages });
-        },
-
         setSessions: (sessions) => {
           set({ sessions });
         },
 
-        addMessage: (message) => {
+        setMessageBySessionId: (sessionId, messages) => {
           set((state) => ({
-            messages: [...state.messages, message],
+            messagesBySessionId: {
+              ...state.messagesBySessionId,
+              [sessionId]: messages,
+            },
           }));
         },
 
-        clearMessages: () => {
-          set({ messages: [] });
+        setSessionModelId: (sessionId, modelId) => {
+          set((state) => ({
+            sessions: state.sessions.map((session) =>
+              session.id === sessionId ? { ...session, modelId } : session,
+            ),
+          }));
+        },
+
+        addMessage: (currentSessionId: string, message: ChatMessage) => {
+          set((state) => ({
+            messagesBySessionId: {
+              ...state.messagesBySessionId,
+              [currentSessionId]: [
+                ...(state.messagesBySessionId[currentSessionId] || []),
+                message,
+              ],
+            },
+          }));
         },
 
         addSession: (session) => {
@@ -64,11 +82,18 @@ export const useChatStore = create<ChatState>()(
         setCurrentSessionId: (sessionId) => {
           set({ currentSessionId: sessionId });
         },
+
+        clearCurrentSession: () => {
+          set({ currentSessionId: null });
+        },
       }),
       {
         name: "chat-store",
         partialize: (state) => ({
           selectedModel: state.selectedModel,
+          sessions: state.sessions,
+          messagesBySessionId: state.messagesBySessionId,
+          currentSessionId: state.currentSessionId,
         }),
       },
     ),
