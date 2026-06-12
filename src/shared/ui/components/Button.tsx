@@ -1,5 +1,5 @@
-import { Button as KumoButton } from "@cloudflare/kumo";
 import { PlusIcon } from "@phosphor-icons/react";
+import { Button as ShadcnButton } from "../button";
 
 function Button({
   children,
@@ -11,16 +11,20 @@ function Button({
   variant?: "primary" | "secondary";
 }) {
   return (
-    <>
-      <KumoButton
-        variant={variant}
-        icon={PlusIcon}
-        onClick={handleClick}
-        className="h-9 w-full !justify-center !rounded-md !bg-primary !text-primary-foreground hover:!brightness-95"
-      >
-        {children}
-      </KumoButton>
-    </>
+    <ShadcnButton
+      type="button"
+      variant={variant === "primary" ? "default" : "outline"}
+      onClick={handleClick}
+      className="h-9 w-full justify-center rounded-md"
+    >
+      <PlusIcon
+        size={16}
+        weight="bold"
+        className="mr-1.5"
+        aria-hidden="true"
+      />
+      {children}
+    </ShadcnButton>
   );
 }
 

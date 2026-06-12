@@ -1,4 +1,3 @@
-import { Tabs as KumoTabs } from "@cloudflare/kumo";
 import { AppWindowIcon, CodeIcon } from "@phosphor-icons/react";
 import { Tabs, TabsList, TabsTrigger } from "@shared/ui/tabs";
 import { useState } from "react";
@@ -42,15 +41,19 @@ function ModelTabs({
 
   return (
     <div className="w-full max-w-md">
-      <KumoTabs
-        tabs={models.map((model) => ({
-          key: model.id,
-          value: model.value,
-          label: model.label,
-        }))}
-        value={selectedModel}
-        onValueChange={handleModelChange}
-      />
+      <Tabs value={selectedModel} onValueChange={handleModelChange}>
+        <TabsList className="h-9 rounded-md border border-border bg-muted p-0.5">
+          {models.map((model) => (
+            <TabsTrigger
+              key={model.id}
+              value={model.value}
+              className="h-8 flex-none rounded px-3 text-sm data-active:bg-card data-active:text-foreground data-active:shadow-none"
+            >
+              {model.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
     </div>
   );
 }

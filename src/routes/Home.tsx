@@ -1,4 +1,4 @@
-import { Button, LayerCard } from "@cloudflare/kumo";
+import { Button } from "@shared/ui/button";
 import router from "../app/router";
 
 function Home() {
@@ -9,14 +9,14 @@ function Home() {
   }
 
   return (
-    <>
-      <LayerCard className="rounded-lg p-6">
+    <div className="min-h-screen bg-background p-6 text-foreground">
+      <div className="rounded-md border border-border bg-card p-6 text-card-foreground">
         <h1 className="mb-4 text-2xl font-bold">{message}</h1>
-        <Button variant="primary" onClick={handlerSubmit}>
+        <Button type="button" onClick={handlerSubmit}>
           Go to talk with AI
         </Button>
-      </LayerCard>
-    </>
+      </div>
+    </div>
   );
 }
 
