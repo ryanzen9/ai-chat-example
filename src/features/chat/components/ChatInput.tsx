@@ -30,7 +30,7 @@ export function ChatInput({
   }
 
   return (
-    <div className="w-full px-6 py-4">
+    <div className="w-full shrink-0 px-6 py-4">
       <div className="mx-auto flex max-w-3xl items-end gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
         <Button
           type="button"

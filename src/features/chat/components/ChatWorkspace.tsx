@@ -10,6 +10,8 @@ import type {
   ChatSession,
   PromptCard,
 } from "@/features/chat/types";
+import { ProgressiveBlur } from "@/shared/ui/progressive-blur";
+import { ScrollArea } from "@/shared/ui/scroll-area";
 import {
   CodeIcon,
   MagnifyingGlassIcon,
@@ -115,7 +117,11 @@ function ChatWorkspace() {
       {messages.length === 0 ? (
         <EmptyState />
       ) : (
-        <MessageList messages={messages} />
+        <ScrollArea className="min-h-0 flex-1 rounded-md border">
+          <MessageList messages={messages} />
+          <ProgressiveBlur position="top" height="10%" />
+          <ProgressiveBlur position="bottom" height="10%" />
+        </ScrollArea>
       )}
       {/* <ChatComposer /> */}
       <ChatInput value={draft} onChange={setDraft} onSend={onSend} />
