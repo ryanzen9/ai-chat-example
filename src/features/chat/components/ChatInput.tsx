@@ -38,7 +38,7 @@ export function ChatInput({
           size="icon"
           className="shrink-0 text-muted-foreground hover:text-foreground"
         >
-          <Paperclip className="h-5 w-5" />
+          <Paperclip data-icon="inline-start" />
         </Button>
 
         <Textarea
@@ -62,7 +62,7 @@ export function ChatInput({
           size="icon"
           className="shrink-0 text-muted-foreground hover:text-foreground"
         >
-          <Mic className="h-5 w-5" />
+          <Mic data-icon="inline-start" />
         </Button>
 
         <Button
@@ -71,7 +71,7 @@ export function ChatInput({
           onClick={handleSubmit}
           className="shrink-0"
         >
-          <Send className="h-5 w-5" />
+          <Send data-icon="inline-start" />
         </Button>
       </div>
     </div>

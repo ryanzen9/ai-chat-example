@@ -5,6 +5,7 @@ import { RouterProvider } from "react-router";
 
 import queryClient from "./app/queryClient.ts";
 import router from "./app/router.tsx";
+import { ThemeProvider } from "./shared/theme/theme-provider.tsx";
 
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/600.css";
@@ -14,8 +15,10 @@ import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <ThemeProvider defaultTheme="dark">
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </ThemeProvider>
   </StrictMode>,
 );

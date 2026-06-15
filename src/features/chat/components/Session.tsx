@@ -1,4 +1,5 @@
 import type { ChatSession } from "../types";
+import { cn } from "@/shared/lib/utils";
 
 interface SessionProps {
   session: ChatSession;
@@ -11,22 +12,12 @@ function Session({ session, active = false, onClick }: SessionProps) {
     <button
       type="button"
       onClick={() => onClick?.(session)}
-      className={`
-        group
-        flex
-        w-full
-        items-center
-        rounded-md
-        px-3
-        py-2
-        text-left
-        transition-colors
-        ${
-          active
-            ? "bg-accent text-primary"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-        }
-      `}
+      className={cn(
+        "group flex w-full items-center rounded-md px-3 py-2 text-left transition-colors",
+        active
+          ? "bg-sidebar-accent text-primary"
+          : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+      )}
     >
       <span className="truncate text-sm font-medium">
         {session.title || "Untitled Chat"}

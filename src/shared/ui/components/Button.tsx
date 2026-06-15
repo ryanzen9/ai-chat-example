@@ -17,12 +17,7 @@ function Button({
       onClick={handleClick}
       className="h-9 w-full justify-center rounded-md"
     >
-      <PlusIcon
-        size={16}
-        weight="bold"
-        className="mr-1.5"
-        aria-hidden="true"
-      />
+      <PlusIcon data-icon="inline-start" weight="bold" aria-hidden="true" />
       {children}
     </ShadcnButton>
   );

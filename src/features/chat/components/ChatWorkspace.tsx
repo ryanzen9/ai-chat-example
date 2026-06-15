@@ -66,7 +66,7 @@ function ChatWorkspace() {
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-border border-t-transparent" />
+        <div className="size-12 animate-spin rounded-full border-4 border-border border-t-transparent" />
       </div>
     );
   }
@@ -135,11 +135,11 @@ function EmptyState() {
   return (
     <div className="mx-auto flex flex-1 max-w-[860px] flex-col justify-center pb-32">
       <div className="flex items-center gap-4 ">
-        <div className="flex h-[52px] w-[52px] items-center justify-center rounded-md  border-border bg-card text-primary">
+        <div className="flex size-[52px] items-center justify-center rounded-md border border-border bg-card text-primary">
           <MagnifyingGlassIcon size={30} weight="bold" />
         </div>
 
-        <h1 className="text-[40px] font-semibold leading-[48px] tracking-[-0.02em] text-foreground">
+        <h1 className="text-[40px] font-semibold leading-[48px] text-foreground">
           How can I help you today?
         </h1>
       </div>
@@ -181,7 +181,7 @@ function PromptCardItem({ card }: { card: PromptCard }) {
   return (
     <button
       onClick={() => setDraft(card.description)}
-      className="group h-[106px] rounded-md border border-border bg-card px-5 py-4 text-left transition hover:border-[var(--app-border-hover)] hover:bg-muted"
+      className="group h-[106px] rounded-md border border-border bg-card px-5 py-4 text-left transition hover:border-app-brand-border hover:bg-muted"
     >
       <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <Icon

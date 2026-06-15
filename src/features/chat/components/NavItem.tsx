@@ -1,4 +1,5 @@
 import type { ChatCircleIcon } from "@phosphor-icons/react";
+import { cn } from "@/shared/lib/utils";
 
 type NavItemProps = {
   label: string;
@@ -9,14 +10,14 @@ type NavItemProps = {
 function NavItem({ label, icon: Icon, active }: NavItemProps) {
   return (
     <button
-      className={[
+      className={cn(
         "flex h-10 w-full items-center gap-3 rounded-md border px-1 text-left text-[15px] font-semibold transition",
         active
           ? "border-border bg-muted text-primary"
           : "border-transparent text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
-      ].join(" ")}
+      )}
     >
-      <Icon size={18} />
+      <Icon />
       {label}
     </button>
   );

@@ -1,4 +1,5 @@
 import { AppWindowIcon, CodeIcon } from "@phosphor-icons/react";
+import { ThemeToggle } from "@/shared/theme/theme-toggle";
 import { Tabs, TabsList, TabsTrigger } from "@shared/ui/tabs";
 import { useState } from "react";
 import { useCurrentSessionId } from "../hooks";
@@ -47,7 +48,7 @@ function ModelTabs({
             <TabsTrigger
               key={model.id}
               value={model.value}
-              className="h-8 flex-none rounded px-3 text-sm data-active:bg-card data-active:text-foreground data-active:shadow-none"
+              className="h-8 flex-none rounded px-3 text-sm data-active:bg-card data-active:shadow-none"
             >
               {model.label}
             </TabsTrigger>
@@ -77,11 +78,11 @@ function PreviewCodeTabs({
     <Tabs value={activeView} onValueChange={handleViewChange}>
       <TabsList>
         <TabsTrigger value="preview">
-          <AppWindowIcon />
+          <AppWindowIcon data-icon="inline-start" />
           Preview
         </TabsTrigger>
         <TabsTrigger value="code">
-          <CodeIcon />
+          <CodeIcon data-icon="inline-start" />
           Code
         </TabsTrigger>
       </TabsList>
@@ -97,13 +98,14 @@ function TopModelBar({
   onModelChange?: (modelId: ModelId) => void;
 }) {
   return (
-    <header className="relative flex h-[var(--topbar-height)] items-center border-b border-border bg-[var(--app-shell)]">
+    <header className="relative flex h-[var(--topbar-height)] items-center border-b border-border bg-app-shell">
       <div className="flex h-full items-center  gap-5 px-6">
         <ModelTabs models={modelTabs} onModelChange={onModelChange} />
       </div>
 
-      <div className="ml-auto flex h-full items-center gap-5 px-6 text-muted-foreground ">
+      <div className="ml-auto flex h-full items-center gap-3 px-6 text-muted-foreground">
         <PreviewCodeTabs onViewModelChange={onViewModelChange} />
+        <ThemeToggle />
       </div>
     </header>
   );
