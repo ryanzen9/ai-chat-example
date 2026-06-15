@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import type { ChatMessage, ChatSession, ModelId } from "./types";
+import type {
+  ChatMessage,
+  ChatMessageStatus,
+  ChatSession,
+  ModelId,
+} from "./types";
 
 type ChatState = {
   selectedModel: ModelId;
@@ -14,8 +19,17 @@ type ChatState = {
   setMessageBySessionId: (sessionId: string, messages: ChatMessage[]) => void;
   setSessionModelId: (sessionId: string, modelId: ModelId) => void;
 
-  addMessage: (sessionId: string, message: ChatMessage) => void;
   appendMessage: (sessionId: string, message: ChatMessage) => void;
+  appendMessageContent: (
+    sessionId: string,
+    messageId: string,
+    chunk: string,
+  ) => void;
+  updateMessageStatus: (
+    sessionId: string,
+    messageId: string,
+    status: ChatMessageStatus,
+  ) => void;
   addSession: (session: ChatSession) => void;
 };
 
@@ -57,25 +71,12 @@ export const useChatStore = create<ChatState>()(
           }));
         },
 
-        addMessage: (sessionId: string, message: ChatMessage) => {
-          set((state) => ({
-            messagesBySessionId: {
-              ...state.messagesBySessionId,
-              [sessionId]: [
-                ...(state.messagesBySessionId[sessionId] || []),
-                message,
-              ],
-            },
-          }));
-        },
-
         appendMessage: (sessionId: string, message: ChatMessage) => {
           set((state) => {
             const sessions = state.sessions.map((session) =>
               session.id === sessionId
                 ? {
                     ...session,
-                    title: message.content.slice(0, 20),
                     lastMessage: message.content,
                     lastMessageTime: message.createdAt,
                   }
@@ -90,6 +91,56 @@ export const useChatStore = create<ChatState>()(
                   ...(state.messagesBySessionId[sessionId] || []),
                   message,
                 ],
+              },
+            };
+          });
+        },
+
+        appendMessageContent: (sessionId, messageId, chunk) => {
+          set((state) => {
+            const sessions = state.sessions.map((session) =>
+              session.id === sessionId
+                ? {
+                    ...session,
+
+                    lastMessage: session.lastMessage + chunk,
+                    lastMessageTime: new Date().toISOString(),
+                  }
+                : session,
+            );
+
+            const messages = state.messagesBySessionId[sessionId]?.map(
+              (message) =>
+                message.id === messageId
+                  ? { ...message, content: message.content + chunk }
+                  : message,
+            );
+
+            return {
+              sessions,
+              messagesBySessionId: {
+                ...state.messagesBySessionId,
+                [sessionId]: messages || [],
+              },
+            };
+          });
+        },
+
+        updateMessageStatus: (
+          sessionId,
+          messageId,
+          status: ChatMessageStatus,
+        ) => {
+          set((state) => {
+            const messages = state.messagesBySessionId[sessionId]?.map(
+              (message) =>
+                message.id === messageId ? { ...message, status } : message,
+            );
+
+            return {
+              messagesBySessionId: {
+                ...state.messagesBySessionId,
+                [sessionId]: messages || [],
               },
             };
           });

@@ -5,7 +5,16 @@ import {
   getChatSessions,
   getPromptCards,
   sendFakeMessage,
+  sendFakeMessageStream,
 } from "./mock";
+import type { ChatMessage } from "./types";
+
+type StreamingMessageVariables = {
+  content: string;
+  onMessage: (message: Omit<ChatMessage, "id">) => void;
+  onDone?: () => void;
+  onError?: (error: Error) => void;
+};
 
 export function useCurrentSessionId() {
   return useParams<string>()["conversationId"];
@@ -37,5 +46,17 @@ export function useChatMessages(sessionId: string, enabled = true) {
 export function useSendMessage() {
   return useMutation({
     mutationFn: sendFakeMessage,
+  });
+}
+
+export function useStreamingMessage() {
+  return useMutation<void, Error, StreamingMessageVariables>({
+    mutationFn: ({ content, onMessage, onDone, onError }) =>
+      sendFakeMessageStream(
+        content,
+        onMessage,
+        onDone ?? (() => undefined),
+        onError ?? (() => undefined),
+      ),
   });
 }

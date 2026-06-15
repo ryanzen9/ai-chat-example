@@ -100,3 +100,31 @@ export async function sendFakeMessage(content: string): Promise<ChatMessage> {
     createdAt: new Date().toISOString(),
   };
 }
+
+export async function sendFakeMessageStream(
+  content: string,
+  onMessage: (message: Omit<ChatMessage, "id">) => void,
+  onDone: () => void,
+  onError: (error: Error) => void,
+): Promise<void> {
+  const fullResponse = `收到：${content}\n\n这是一个模拟 AI 回复（流式）。下一步你可以把这个函数替换成真实的 /api/chat 请求。`;
+
+  try {
+    for (let index = 0; index < fullResponse.length; index++) {
+      const char = fullResponse[index];
+
+      await wait(50);
+
+      onMessage({
+        role: "assistant",
+        content: char,
+        createdAt: new Date().toISOString(),
+        status: "streaming",
+      });
+    }
+
+    onDone();
+  } catch (error) {
+    onError(error as Error);
+  }
+}

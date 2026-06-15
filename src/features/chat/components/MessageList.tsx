@@ -1,5 +1,6 @@
-import type { ChatMessage } from "../types";
 import { cn } from "@/shared/lib/utils";
+import { AnimatedShinyText } from "@/shared/ui/animated-shiny-text";
+import type { ChatMessage } from "../types";
 
 function MessageList({ messages }: { messages: ChatMessage[] }) {
   return (
@@ -22,6 +23,13 @@ function MessageBubble({
 }) {
   const isUser = message.role === "user";
   const isFirst = index === 0;
+  const status = message.status;
+  const isPending = status === "pending";
+  const isTalking = status === "streaming";
+  const isError = status === "error";
+  const isCancelled = status === "cancelled";
+  const isRenderableContent =
+    !status || status === "done" || isError || isCancelled;
 
   return (
     <div
@@ -36,11 +44,43 @@ function MessageBubble({
           isUser
             ? "border-app-brand-border bg-app-brand-soft text-foreground"
             : "border-border bg-card text-card-foreground",
+          isTalking && "border-primary/40 ring-1 ring-primary/20",
+          isPending && "border-primary/30 bg-muted/40",
+          isError && "border-destructive/40 text-destructive",
         )}
       >
-        {message.content}
+        {isPending && <PendingMessage />}
+        {isTalking && <StreamingMessage content={message.content} />}
+        {isRenderableContent &&
+          (isCancelled ? (
+            <span className="text-muted-foreground">{message.content}</span>
+          ) : (
+            message.content
+          ))}
       </div>
     </div>
+  );
+}
+
+function PendingMessage() {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span className="size-1.5 rounded-full bg-primary" />
+      <AnimatedShinyText className="mx-0 max-w-none">
+        Thinking...
+      </AnimatedShinyText>
+    </span>
+  );
+}
+
+function StreamingMessage({ content }: { content: string }) {
+  return (
+    <span>
+      {content}
+      <AnimatedShinyText className="mx-0 ml-1 inline-block max-w-none text-primary">
+        ▍
+      </AnimatedShinyText>
+    </span>
   );
 }
 

@@ -2,7 +2,7 @@ import {
   useChatMessages,
   useCurrentSessionId,
   usePromptCards,
-  useSendMessage,
+  useStreamingMessage,
 } from "@/features/chat/hooks";
 import { useChatStore } from "@/features/chat/store";
 import type {
@@ -34,8 +34,13 @@ function ChatWorkspace() {
     (state) => state.setMessageBySessionId,
   );
   const selectedModel = useChatStore((state) => state.selectedModel);
-  const addMessage = useChatStore((state) => state.addMessage); // Subscribe to messages changes
   const appendMessage = useChatStore((state) => state.appendMessage);
+  const appendMessageContent = useChatStore(
+    (state) => state.appendMessageContent,
+  );
+  const updateMessageStatus = useChatStore(
+    (state) => state.updateMessageStatus,
+  );
   const addSession = useChatStore((state) => state.addSession);
   const navigate = useNavigate();
 
@@ -47,7 +52,8 @@ function ChatWorkspace() {
     currentSessionId ?? "",
     shouldLoadMockMessages,
   );
-  const sendMessage = useSendMessage();
+
+  const sendMessageStream = useStreamingMessage();
 
   useEffect(() => {
     if (!data || !currentSessionId) return;
@@ -72,12 +78,6 @@ function ChatWorkspace() {
   }
 
   function onSend(message: string) {
-    const messageBody: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: message,
-      createdAt: new Date().toISOString(),
-    };
     const session: ChatSession = {
       id: crypto.randomUUID(),
       modelId: selectedModel,
@@ -85,6 +85,13 @@ function ChatWorkspace() {
       title: message,
       lastMessage: message,
       lastMessageTime: new Date().toISOString(),
+    };
+    const messageBody: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      content: message,
+      createdAt: new Date().toISOString(),
+      status: "done",
     };
 
     const sessionId = currentSessionId || session.id;
@@ -95,19 +102,34 @@ function ChatWorkspace() {
     }
 
     setDraft("");
-    addMessage(sessionId, messageBody);
+    appendMessage(sessionId, messageBody);
 
-    sendMessage.mutate(message, {
-      onSuccess: (response) => {
-        appendMessage(sessionId, response);
+    const responseMessage: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "assistant",
+      content: "",
+      createdAt: new Date().toISOString(),
+      status: "pending",
+    };
+    appendMessage(sessionId, responseMessage);
+
+    sendMessageStream.mutate({
+      content: message,
+      onMessage: (message: Omit<ChatMessage, "id">) => {
+        appendMessageContent(sessionId, responseMessage.id, message.content);
+        updateMessageStatus(sessionId, responseMessage.id, "streaming");
+      },
+      onDone: () => {
+        updateMessageStatus(sessionId, responseMessage.id, "done");
       },
       onError: () => {
-        appendMessage(sessionId, {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: "发送失败，请稍后重试。",
-          createdAt: new Date().toISOString(),
-        });
+        appendMessageContent(
+          sessionId,
+          responseMessage.id,
+          "发送失败，请稍后重试。",
+        );
+
+        updateMessageStatus(sessionId, responseMessage.id, "error");
       },
     });
   }
@@ -124,7 +146,12 @@ function ChatWorkspace() {
         </ScrollArea>
       )}
       {/* <ChatComposer /> */}
-      <ChatInput value={draft} onChange={setDraft} onSend={onSend} />
+      <ChatInput
+        value={draft}
+        onChange={setDraft}
+        onSend={onSend}
+        isStreaming={sendMessageStream.isPending}
+      />
     </section>
   );
 }
