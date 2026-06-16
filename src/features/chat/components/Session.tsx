@@ -15,13 +15,13 @@ function Session({ session, active = false, onClick, onCancel }: SessionProps) {
       type="button"
       onClick={() => onClick?.(session)}
       className={cn(
-        "group flex w-full items-center rounded-md px-3 py-2 text-left transition-colors",
+        "group flex min-w-0 w-full items-center rounded-md px-3 py-2 text-left transition-colors",
         active
           ? "bg-sidebar-accent text-primary"
           : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
       )}
     >
-      <span className="truncate text-sm font-medium">
+      <span className="min-w-0 flex-1 truncate text-sm font-medium">
         {session.title || "Untitled Chat"}
       </span>
 

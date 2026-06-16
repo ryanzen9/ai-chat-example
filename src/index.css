@@ -258,6 +258,16 @@ body,
   }
 }
 
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer components {
   /* highlight.js base — light mode */
   .ai-markdown .hljs {

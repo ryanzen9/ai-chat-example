@@ -4,7 +4,7 @@ import { LoaderCircle, Mic, Paperclip, Send } from "lucide-react";
 
 import { Button } from "@shared/ui/button";
 import { Textarea } from "@shared/ui/textarea";
-import React from "react";
+import type { ChangeEvent, KeyboardEvent } from "react";
 
 export function ChatInput({
   value,
@@ -34,7 +34,7 @@ export function ChatInput({
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
       e.preventDefault();
       handleSubmit();
@@ -42,9 +42,9 @@ export function ChatInput({
   };
 
   return (
-    <div className="w-full shrink-0 px-6 py-4">
+    <div className="w-full shrink-0 px-3 py-3 md:px-6 md:py-4">
       <div
-        className="mx-auto flex max-w-3xl items-end gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30 data-[streaming=true]:border-primary/40 data-[streaming=true]:ring-2 data-[streaming=true]:ring-primary/15"
+        className="mx-auto flex max-w-3xl items-end gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-sm transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30 data-[streaming=true]:border-primary/40 data-[streaming=true]:ring-2 data-[streaming=true]:ring-primary/15 md:gap-3 md:rounded-2xl md:px-4 md:py-3"
         data-streaming={isStreaming}
       >
         <Button
@@ -58,11 +58,11 @@ export function ChatInput({
 
         <Textarea
           value={value}
-          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
             handleChange(e.target.value)
           }
           placeholder="输入消息..."
-          className="max-h-40 min-h-8 flex-1 resize-none border-0 bg-transparent px-0 py-0 shadow-none focus-visible:ring-0"
+          className="max-h-40 min-h-9 min-w-0 flex-1 resize-none border-0 bg-transparent px-0 py-1 shadow-none focus-visible:ring-0"
           disabled={isStreaming}
           onKeyDown={handleKeyDown}
         />
@@ -71,7 +71,7 @@ export function ChatInput({
           type="button"
           variant="ghost"
           size="icon"
-          className="shrink-0 text-muted-foreground hover:text-foreground"
+          className="hidden shrink-0 text-muted-foreground hover:text-foreground sm:inline-flex"
         >
           <Mic data-icon="inline-start" />
         </Button>

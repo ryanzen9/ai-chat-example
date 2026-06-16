@@ -9,7 +9,13 @@ import type { ChatSession } from "../types";
 import ApiKeyControl from "./ApiKeyControl";
 import Session from "./Session";
 
-function Sidebar() {
+function Sidebar({
+  className,
+  onNavigate,
+}: {
+  className?: string;
+  onNavigate?: () => void;
+}) {
   const currentSessionId = useCurrentSessionId();
   const setSelectedModel = useChatStore((state) => state.setSelectedModel);
   const setSessions = useChatStore((state) => state.setSessions);
@@ -34,15 +40,22 @@ function Sidebar() {
   function newChatClickHandler() {
     setSelectedModel("deepseek-v4-flash");
     navigate("/chat");
+    onNavigate?.();
   }
 
   function sessionClickHandler(session: ChatSession) {
     setSelectedModel(session.modelId);
     navigate(`/chat/${session.id}`);
+    onNavigate?.();
   }
 
   return (
-    <aside className="flex h-screen w-[var(--sidebar-width)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+    <aside
+      className={cn(
+        "flex h-dvh w-full shrink-0 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground md:w-[var(--sidebar-width)]",
+        className,
+      )}
+    >
       <div className="flex h-[var(--topbar-height)] items-center gap-3 border-b border-sidebar-border px-4">
         <div className="flex size-8 items-center justify-center rounded-md bg-app-brand-soft text-primary">
           <CloudIcon weight="fill" />

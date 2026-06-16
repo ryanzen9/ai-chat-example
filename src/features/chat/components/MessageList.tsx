@@ -16,8 +16,8 @@ function MessageList({
   onRetry?: (message: ChatMessage, index: number) => void;
 }) {
   return (
-    <div className="px-6 pb-36 pt-10">
-      <div className="mx-auto flex max-w-215 flex-col gap-5">
+    <div className="px-3 pb-32 pt-6 md:px-6 md:pb-36 md:pt-10">
+      <div className="mx-auto flex w-full max-w-215 flex-col gap-4 md:gap-5">
         {messages.map((message, index) => (
           <MessageBubble
             key={message.id}
@@ -61,13 +61,13 @@ function MessageBubble({
         isUser ? "flex justify-end" : "flex justify-start",
         isFirst ? "mt-8" : "",
       )}
-      onMouseEnter={() => setToolBarIsVisible(true && isLast && !isUser)}
+      onMouseEnter={() => setToolBarIsVisible(isLast && !isUser)}
       onMouseLeave={() => setToolBarIsVisible(false)}
     >
-      <div className="group/message flex max-w-[72%] flex-col items-start">
+      <div className="group/message flex max-w-[92%] flex-col items-start md:max-w-[72%]">
         <div
           className={cn(
-            "rounded border px-4 py-3 text-sm leading-6",
+            "min-w-0 rounded border px-3 py-2.5 text-sm leading-6 md:px-4 md:py-3",
             isUser
               ? "whitespace-pre-wrap border-app-brand-border bg-app-brand-soft text-foreground"
               : "border-border bg-card text-card-foreground",

@@ -73,7 +73,7 @@ const markdownComponents: Components = {
   table({ className, ...props }) {
     return (
       <div className="my-3 overflow-x-auto rounded-md border border-border">
-        <table className={cn("my-0 w-full", className)} {...props} />
+        <table className={cn("my-0 w-max min-w-full", className)} {...props} />
       </div>
     );
   },
@@ -111,7 +111,7 @@ function CodeBlock({
   }
 
   return (
-    <div className="not-prose my-3 overflow-hidden rounded-md border border-border bg-muted/40">
+    <div className="not-prose my-3 min-w-0 overflow-hidden rounded-md border border-border bg-muted/40">
       <div className="flex h-9 items-center justify-between border-b border-border bg-muted px-3">
         <span className="font-mono text-xs text-muted-foreground">
           {language || "code"}

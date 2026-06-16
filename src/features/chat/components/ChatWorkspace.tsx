@@ -274,10 +274,7 @@ function ChatWorkspace() {
       {messages.length === 0 ? (
         <EmptyState />
       ) : (
-        <ScrollArea
-          className="min-h-0 flex-1 rounded-md border"
-          viewportRef={viewportRef}
-        >
+        <ScrollArea className="min-h-0 flex-1" viewportRef={viewportRef}>
           <MessageList messages={messages} onRetry={retryAssistantMessage} />
           <ProgressiveBlur position="top" height="10%" />
           <ProgressiveBlur position="bottom" height="10%" />
@@ -298,20 +295,20 @@ function EmptyState() {
   const { data: cards = [], isLoading } = usePromptCards();
 
   return (
-    <div className="mx-auto flex flex-1 max-w-215 flex-col justify-center pb-32">
-      <div className="flex items-center gap-4 ">
-        <div className="flex size-13 items-center justify-center rounded-md border border-border bg-card text-primary">
+    <div className="mx-auto flex w-full max-w-215 flex-1 flex-col justify-center px-4 pb-24 md:px-0 md:pb-32">
+      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+        <div className="flex size-12 shrink-0 items-center justify-center rounded-md border border-border bg-card text-primary md:size-13">
           <MagnifyingGlassIcon size={30} weight="bold" />
         </div>
 
-        <h1 className="text-[40px] font-semibold leading-12 text-foreground">
+        <h1 className="text-2xl font-semibold leading-8 text-foreground md:text-[40px] md:leading-12">
           How can I help you today?
         </h1>
       </div>
 
-      <div className="mt-9 h-px bg-border" />
+      <div className="mt-6 h-px bg-border md:mt-9" />
 
-      <div className="mt-8 grid grid-cols-3 gap-4">
+      <div className="mt-6 grid grid-cols-1 gap-3 md:mt-8 md:grid-cols-3 md:gap-4">
         {isLoading ? (
           <>
             <PromptSkeleton />
@@ -328,7 +325,7 @@ function EmptyState() {
 
 function PromptSkeleton() {
   return (
-    <div className="h-26.5 animate-pulse rounded-md border border-border bg-card" />
+    <div className="min-h-24 animate-pulse rounded-md border border-border bg-card md:min-h-26.5" />
   );
 }
 
@@ -346,7 +343,7 @@ function PromptCardItem({ card }: { card: PromptCard }) {
   return (
     <button
       onClick={() => setDraft(card.description)}
-      className="group h-26.5 rounded-md border border-border bg-card px-5 py-4 text-left transition hover:border-app-brand-border hover:bg-muted"
+      className="group min-h-24 rounded-md border border-border bg-card px-4 py-3 text-left transition hover:border-app-brand-border hover:bg-muted md:min-h-26.5 md:px-5 md:py-4"
     >
       <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <Icon
