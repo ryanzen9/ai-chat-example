@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import { isModelId } from "./types";
 import type {
   ChatMessage,
   ChatMessageStatus,
   ChatSession,
   ModelId,
 } from "./types";
+import { isModelId } from "./types";
 
 type ChatState = {
   selectedModel: ModelId;
@@ -14,6 +14,7 @@ type ChatState = {
   sessions: ChatSession[];
   messagesBySessionId: Record<string, ChatMessage[]>;
   enableMarkdown: boolean;
+  apiKey: string;
 
   setSelectedModel: (model: ModelId) => void;
   setDraft: (draft: string) => void;
@@ -21,6 +22,7 @@ type ChatState = {
   setMessageBySessionId: (sessionId: string, messages: ChatMessage[]) => void;
   setSessionModelId: (sessionId: string, modelId: ModelId) => void;
   toggleMarkdown: () => void;
+  setApiKey: (apiKey: string) => void;
 
   appendMessage: (sessionId: string, message: ChatMessage) => void;
   appendMessageContent: (
@@ -45,6 +47,7 @@ export const useChatStore = create<ChatState>()(
         sessions: [],
         messagesBySessionId: {},
         enableMarkdown: true,
+        apiKey: "",
 
         setSelectedModel: (model) => {
           set({ selectedModel: model });
@@ -77,6 +80,12 @@ export const useChatStore = create<ChatState>()(
 
         toggleMarkdown: () => {
           set((state) => ({ enableMarkdown: !state.enableMarkdown }));
+        },
+
+        setApiKey: (apiKey) => {
+          if (typeof window === "undefined") return;
+          const normalized = apiKey.trim();
+          set(() => ({ apiKey: normalized }));
         },
 
         appendMessage: (sessionId: string, message: ChatMessage) => {
@@ -162,13 +171,20 @@ export const useChatStore = create<ChatState>()(
       }),
       {
         name: "chat-store",
-        version: 2,
+        version: 3,
         migrate: (persistedState) => {
           if (!persistedState || typeof persistedState !== "object") {
             return persistedState;
           }
 
           const state = persistedState as Partial<ChatState>;
+
+          if (typeof window !== "undefined") {
+            const apiKey = window.localStorage.getItem("deepseek-api-key");
+            if (apiKey) {
+              state.apiKey = apiKey;
+            }
+          }
 
           return {
             ...state,
@@ -188,6 +204,7 @@ export const useChatStore = create<ChatState>()(
           sessions: state.sessions,
           messagesBySessionId: state.messagesBySessionId,
           enableMarkdown: state.enableMarkdown,
+          apiKey: state.apiKey,
         }),
       },
     ),

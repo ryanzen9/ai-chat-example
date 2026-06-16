@@ -18,7 +18,6 @@ export function ChatInput({
   isStreaming?: boolean;
 }) {
   const canSend = Boolean(value?.trim()) && !isStreaming;
-  const textarea = React.useRef<HTMLTextAreaElement>(null);
 
   function handleSubmit() {
     const message = value?.trim();

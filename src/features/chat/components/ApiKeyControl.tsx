@@ -1,16 +1,18 @@
 import { CheckIcon, KeyIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 
-import { getDeepSeekApiKey, setDeepSeekApiKey } from "../api-key";
+import { useChatStore } from "../store";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 
 function ApiKeyControl() {
-  const [apiKey, setApiKey] = useState(() => getDeepSeekApiKey());
+  const apiKey = useChatStore((state) => state.apiKey);
+  const setApiKey = useChatStore((state) => state.setApiKey);
+  const [value, setValue] = useState(apiKey);
   const [saved, setSaved] = useState(false);
 
   function handleSave() {
-    setDeepSeekApiKey(apiKey);
+    setApiKey(value);
     setSaved(true);
 
     window.setTimeout(() => {
@@ -32,8 +34,8 @@ function ApiKeyControl() {
         <Input
           id="deepseek-api-key"
           type="password"
-          value={apiKey}
-          onChange={(event) => setApiKey(event.target.value)}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               handleSave();

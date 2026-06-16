@@ -1,5 +1,5 @@
 import type { ChatMessage, ModelId } from "./types";
-import { getDeepSeekApiKey } from "./api-key";
+import { useChatStore } from "./store";
 
 export type Conversation = {
   id: string;
@@ -170,7 +170,7 @@ export async function sendMessage(input: {
   }
 
   try {
-    const apiKey = getDeepSeekApiKey();
+    const apiKey = useChatStore.getState().apiKey;
 
     if (!apiKey) {
       throw new Error("请先在左侧填写 DeepSeek API Key。");
