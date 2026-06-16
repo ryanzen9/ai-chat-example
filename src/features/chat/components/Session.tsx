@@ -1,13 +1,15 @@
 import type { ChatSession } from "../types";
 import { cn } from "@/shared/lib/utils";
+import { XIcon } from "lucide-react";
 
 interface SessionProps {
   session: ChatSession;
   active?: boolean;
   onClick?: (session: ChatSession) => void;
+  onCancel?: (sessionId: string) => void;
 }
 
-function Session({ session, active = false, onClick }: SessionProps) {
+function Session({ session, active = false, onClick, onCancel }: SessionProps) {
   return (
     <button
       type="button"
@@ -22,6 +24,23 @@ function Session({ session, active = false, onClick }: SessionProps) {
       <span className="truncate text-sm font-medium">
         {session.title || "Untitled Chat"}
       </span>
+
+      {session.isWorking && (
+        <span className="ml-auto flex shrink-0 items-center gap-1">
+          <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+          <span
+            className="hidden rounded p-0.5 hover:bg-sidebar-accent group-hover:inline-flex"
+            onClick={(e) => {
+              e.stopPropagation();
+              onCancel?.(session.id);
+            }}
+            role="button"
+            aria-label="Cancel"
+          >
+            <XIcon className="size-3" />
+          </span>
+        </span>
+      )}
     </button>
   );
 }

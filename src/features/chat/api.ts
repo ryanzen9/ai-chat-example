@@ -113,6 +113,7 @@ export async function getMessages(conversationId: string): Promise<Message[]> {
 export async function sendMessage(input: {
   model: ModelId;
   content: string;
+  signal?: AbortSignal;
   onMessage: (message: Omit<ChatMessage, "id">) => void;
   onDone: () => void;
   onError: (error: Error) => void;
@@ -201,6 +202,7 @@ export async function sendMessage(input: {
         Accept: "text/event-stream",
         Authorization: `Bearer ${apiKey}`,
       },
+      signal: input.signal,
       body: JSON.stringify(requestBody),
     });
 

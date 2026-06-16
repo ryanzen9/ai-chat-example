@@ -14,6 +14,9 @@ function Sidebar() {
   const setSelectedModel = useChatStore((state) => state.setSelectedModel);
   const setSessions = useChatStore((state) => state.setSessions);
   const sessions = useChatStore((state) => state.sessions);
+  const cancelSessionStream = useChatStore(
+    (state) => state.cancelSessionStream,
+  );
 
   const { data, isLoading } = useChatSessions(sessions.length === 0);
 
@@ -76,6 +79,7 @@ function Sidebar() {
                   session={item}
                   active={currentSessionId === item.id}
                   onClick={() => sessionClickHandler(item)}
+                  onCancel={cancelSessionStream}
                 />
               ))
             ) : (

@@ -1,8 +1,8 @@
 import { cn } from "@/shared/lib/utils";
 import { AnimatedShinyText } from "@/shared/ui/animated-shiny-text";
 import { lazy, Suspense } from "react";
-import type { ChatMessage } from "../types";
 import { useChatStore } from "../store";
+import type { ChatMessage } from "../types";
 
 const AIMessageMarkdown = lazy(() => import("./AIMessageMarkdown"));
 
@@ -80,9 +80,7 @@ function PendingMessage() {
 }
 
 function StreamingMessage({ content }: { content: string }) {
-  return (
-    <MarkdownContent content={content} isStreaming />
-  );
+  return <MarkdownContent content={content} isStreaming />;
 }
 
 function MarkdownContent({

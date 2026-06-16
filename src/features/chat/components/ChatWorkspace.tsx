@@ -2,9 +2,12 @@ import {
   useChatMessages,
   useCurrentSessionId,
   usePromptCards,
-  useStreamingMessage,
 } from "@/features/chat/hooks";
-import { useChatStore } from "@/features/chat/store";
+import {
+  clearStreamController,
+  registerStreamController,
+  useChatStore,
+} from "@/features/chat/store";
 import type {
   ChatMessage,
   ChatSession,
@@ -20,6 +23,7 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
+import { sendMessage } from "../api";
 import { ChatInput } from "./ChatInput";
 import MessageList from "./MessageList";
 
@@ -42,6 +46,12 @@ function ChatWorkspace() {
     (state) => state.updateMessageStatus,
   );
   const addSession = useChatStore((state) => state.addSession);
+  const setSessionWorking = useChatStore((state) => state.setSessionWorking);
+  const cancelSessionStream = useChatStore(
+    (state) => state.cancelSessionStream,
+  );
+  const sessions = useChatStore((state) => state.sessions);
+  const cancelAllStreams = useChatStore((state) => state.cancelAllStreams);
 
   const navigate = useNavigate();
 
@@ -53,8 +63,6 @@ function ChatWorkspace() {
     currentSessionId ?? "",
     shouldLoadMockMessages,
   );
-
-  const sendMessageStream = useStreamingMessage();
 
   useEffect(() => {
     if (!data || !currentSessionId) return;
@@ -70,20 +78,52 @@ function ChatWorkspace() {
     ? messagesBySessionId[currentSessionId] || []
     : [];
 
+  const currentSession = sessions.find((s) => s.id === currentSessionId);
+  const isSessionWorking = currentSession?.isWorking ?? false;
+
   const viewportRef = useRef<HTMLDivElement | null>(null);
+  const userScrolledRef = useRef(false);
   const isStreaming = messages.some((m) => m.status === "streaming");
+  const hasMessages = messages.length > 0;
+
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+
+    const onScroll = () => {
+      const distanceFromBottom =
+        el.scrollHeight - el.scrollTop - el.clientHeight;
+      userScrolledRef.current = distanceFromBottom > 40;
+    };
+
+    el.addEventListener("scroll", onScroll);
+
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+    };
+  }, [hasMessages]); // 只挂载一次
 
   useEffect(() => {
     if (!viewportRef.current) return;
 
-    // 流式输出时始终跟随最新内容；非流式时不自动滚动
-    if (isStreaming) {
+    // 流式且没有滚轮未移动时输出时始终跟随最新内容；非流式时不自动滚动
+    if (isStreaming && !userScrolledRef.current) {
       viewportRef.current.scrollTo({
         top: viewportRef.current.scrollHeight,
         behavior: "instant",
       });
     }
   }, [messages, isStreaming]);
+
+  useEffect(() => {
+    const handlerUnload = () => {
+      cancelAllStreams();
+    };
+
+    window.addEventListener("beforeunload", handlerUnload);
+
+    return () => window.removeEventListener("beforeunload", handlerUnload);
+  }, [cancelAllStreams]);
 
   if (isLoading) {
     return (
@@ -117,6 +157,9 @@ function ChatWorkspace() {
       navigate(`/chat/${sessionId}`, { replace: true });
     }
 
+    // 如果当前 session 已有流在跑，先取消
+    cancelSessionStream(sessionId);
+
     setDraft("");
     appendMessage(sessionId, messageBody);
 
@@ -129,23 +172,37 @@ function ChatWorkspace() {
     };
     appendMessage(sessionId, responseMessage);
 
-    sendMessageStream.mutate({
+    const controller = new AbortController();
+    registerStreamController(sessionId, controller);
+    setSessionWorking(sessionId, true);
+
+    sendMessage({
       model: selectedModel,
       content: message,
-      onMessage: (message: Omit<ChatMessage, "id">) => {
-        appendMessageContent(sessionId, responseMessage.id, message.content);
+      signal: controller.signal,
+      onMessage: (msg: Omit<ChatMessage, "id">) => {
+        appendMessageContent(sessionId, responseMessage.id, msg.content);
         updateMessageStatus(sessionId, responseMessage.id, "streaming");
       },
       onDone: () => {
+        clearStreamController(sessionId);
+        setSessionWorking(sessionId, false);
         updateMessageStatus(sessionId, responseMessage.id, "done");
       },
       onError: (error) => {
+        clearStreamController(sessionId);
+        setSessionWorking(sessionId, false);
+
+        if (error.name === "AbortError") {
+          updateMessageStatus(sessionId, responseMessage.id, "cancelled");
+          return;
+        }
+
         appendMessageContent(
           sessionId,
           responseMessage.id,
           error.message || "发送失败，请稍后重试。",
         );
-
         updateMessageStatus(sessionId, responseMessage.id, "error");
       },
     });
@@ -156,7 +213,10 @@ function ChatWorkspace() {
       {messages.length === 0 ? (
         <EmptyState />
       ) : (
-        <ScrollArea className="min-h-0 flex-1 rounded-md border" viewportRef={viewportRef}>
+        <ScrollArea
+          className="min-h-0 flex-1 rounded-md border"
+          viewportRef={viewportRef}
+        >
           <MessageList messages={messages} />
           <ProgressiveBlur position="top" height="10%" />
           <ProgressiveBlur position="bottom" height="10%" />
@@ -167,7 +227,7 @@ function ChatWorkspace() {
         value={draft}
         onChange={setDraft}
         onSend={onSend}
-        isStreaming={sendMessageStream.isPending}
+        isStreaming={isSessionWorking}
       />
     </section>
   );

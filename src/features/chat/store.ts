@@ -8,6 +8,19 @@ import type {
 } from "./types";
 import { isModelId } from "./types";
 
+const streamControllers = new Map<string, AbortController>();
+
+export function registerStreamController(
+  sessionId: string,
+  controller: AbortController,
+) {
+  streamControllers.set(sessionId, controller);
+}
+
+export function clearStreamController(sessionId: string) {
+  streamControllers.delete(sessionId);
+}
+
 type ChatState = {
   selectedModel: ModelId;
   draft: string;
@@ -23,6 +36,9 @@ type ChatState = {
   setSessionModelId: (sessionId: string, modelId: ModelId) => void;
   toggleMarkdown: () => void;
   setApiKey: (apiKey: string) => void;
+  setSessionWorking: (sessionId: string, isWorking: boolean) => void;
+  cancelSessionStream: (sessionId: string) => void;
+  cancelAllStreams: () => void;
 
   appendMessage: (sessionId: string, message: ChatMessage) => void;
   appendMessageContent: (
@@ -86,6 +102,54 @@ export const useChatStore = create<ChatState>()(
           if (typeof window === "undefined") return;
           const normalized = apiKey.trim();
           set(() => ({ apiKey: normalized }));
+        },
+
+        setSessionWorking: (sessionId, isWorking) => {
+          set((state) => ({
+            sessions: state.sessions.map((s) =>
+              s.id === sessionId ? { ...s, isWorking } : s,
+            ),
+          }));
+        },
+
+        cancelSessionStream: (sessionId) => {
+          streamControllers.get(sessionId)?.abort();
+          streamControllers.delete(sessionId);
+          set((state) => ({
+            sessions: state.sessions.map((s) =>
+              s.id === sessionId ? { ...s, isWorking: false } : s,
+            ),
+            messagesBySessionId: {
+              ...state.messagesBySessionId,
+              [sessionId]: (state.messagesBySessionId[sessionId] || []).map(
+                (m) =>
+                  m.status === "streaming" || m.status === "pending"
+                    ? { ...m, status: "cancelled" }
+                    : m,
+              ),
+            },
+          }));
+        },
+
+        cancelAllStreams: () => {
+          streamControllers.forEach((controller, sessionId) => {
+            controller.abort();
+            streamControllers.delete(sessionId);
+            set((state) => ({
+              sessions: state.sessions.map((s) =>
+                s.id === sessionId ? { ...s, isWorking: false } : s,
+              ),
+              messagesBySessionId: {
+                ...state.messagesBySessionId,
+                [sessionId]: (state.messagesBySessionId[sessionId] || []).map(
+                  (m) =>
+                    m.status === "streaming" || m.status === "pending"
+                      ? { ...m, status: "cancelled" }
+                      : m,
+                ),
+              },
+            }));
+          });
         },
 
         appendMessage: (sessionId: string, message: ChatMessage) => {
@@ -171,7 +235,7 @@ export const useChatStore = create<ChatState>()(
       }),
       {
         name: "chat-store",
-        version: 3,
+        version: 4,
         migrate: (persistedState) => {
           if (!persistedState || typeof persistedState !== "object") {
             return persistedState;
@@ -193,6 +257,7 @@ export const useChatStore = create<ChatState>()(
               : "deepseek-v4-flash",
             sessions: state.sessions?.map((session) => ({
               ...session,
+              isWorking: false,
               modelId: isModelId(session.modelId)
                 ? session.modelId
                 : "deepseek-v4-flash",
