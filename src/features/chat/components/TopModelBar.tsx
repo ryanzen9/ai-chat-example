@@ -1,5 +1,5 @@
-import { AppWindowIcon, CodeIcon } from "@phosphor-icons/react";
 import { ThemeToggle } from "@/shared/theme/theme-toggle";
+import { AppWindowIcon, CodeIcon } from "@phosphor-icons/react";
 import { Tabs, TabsList, TabsTrigger } from "@shared/ui/tabs";
 import { useState } from "react";
 import { useCurrentSessionId } from "../hooks";
@@ -7,9 +7,12 @@ import { useChatStore } from "../store";
 import type { ModelId } from "../types";
 
 const modelTabs: { id: ModelId; value: ModelId; label: string }[] = [
-  { id: "deepseek-v3", value: "deepseek-v3", label: "DeepSeek-V3" },
-  { id: "gpt-4o", value: "gpt-4o", label: "GPT-4o" },
-  { id: "claude-3.5", value: "claude-3.5", label: "Claude-3.5" },
+  {
+    id: "deepseek-v4-flash",
+    value: "deepseek-v4-flash",
+    label: "DeepSeek-V4 Flash",
+  },
+  { id: "deepseek-v4-pro", value: "deepseek-v4-pro", label: "DeepSeek-V4 Pro" },
 ];
 
 function ModelTabs({

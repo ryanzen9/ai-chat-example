@@ -32,24 +32,7 @@ export async function getChatSessions(): Promise<
 > {
   await wait(2000);
 
-  return [
-    {
-      id: "session-1",
-      modelId: "gpt-4o",
-      title: "Chat about React",
-      lastMessage: "What is the useState hook?",
-      isWorking: false,
-      lastMessageTime: "2024-06-01T12:00:00Z",
-    },
-    {
-      id: "session-2",
-      modelId: "deepseek-v3",
-      title: "Chat about DeepSeek",
-      lastMessage: "What is DeepSeek?",
-      isWorking: false,
-      lastMessageTime: "2024-06-01T12:00:00Z",
-    },
-  ];
+  return [];
 }
 
 export async function getChatMessages(

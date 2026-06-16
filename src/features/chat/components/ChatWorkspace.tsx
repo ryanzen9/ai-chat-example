@@ -42,6 +42,7 @@ function ChatWorkspace() {
     (state) => state.updateMessageStatus,
   );
   const addSession = useChatStore((state) => state.addSession);
+
   const navigate = useNavigate();
 
   const shouldLoadMockMessages =
@@ -114,6 +115,7 @@ function ChatWorkspace() {
     appendMessage(sessionId, responseMessage);
 
     sendMessageStream.mutate({
+      model: selectedModel,
       content: message,
       onMessage: (message: Omit<ChatMessage, "id">) => {
         appendMessageContent(sessionId, responseMessage.id, message.content);
@@ -122,11 +124,11 @@ function ChatWorkspace() {
       onDone: () => {
         updateMessageStatus(sessionId, responseMessage.id, "done");
       },
-      onError: () => {
+      onError: (error) => {
         appendMessageContent(
           sessionId,
           responseMessage.id,
-          "发送失败，请稍后重试。",
+          error.message || "发送失败，请稍后重试。",
         );
 
         updateMessageStatus(sessionId, responseMessage.id, "error");

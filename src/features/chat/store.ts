@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
+import { isModelId } from "./types";
 import type {
   ChatMessage,
   ChatMessageStatus,
@@ -37,7 +38,7 @@ export const useChatStore = create<ChatState>()(
   devtools(
     persist(
       (set) => ({
-        selectedModel: "deepseek-v3",
+        selectedModel: "deepseek-v4-flash",
         draft: "",
         sessions: [],
         messagesBySessionId: {},
@@ -154,6 +155,27 @@ export const useChatStore = create<ChatState>()(
       }),
       {
         name: "chat-store",
+        version: 2,
+        migrate: (persistedState) => {
+          if (!persistedState || typeof persistedState !== "object") {
+            return persistedState;
+          }
+
+          const state = persistedState as Partial<ChatState>;
+
+          return {
+            ...state,
+            selectedModel: isModelId(state.selectedModel)
+              ? state.selectedModel
+              : "deepseek-v4-flash",
+            sessions: state.sessions?.map((session) => ({
+              ...session,
+              modelId: isModelId(session.modelId)
+                ? session.modelId
+                : "deepseek-v4-flash",
+            })),
+          };
+        },
         partialize: (state) => ({
           selectedModel: state.selectedModel,
           sessions: state.sessions,

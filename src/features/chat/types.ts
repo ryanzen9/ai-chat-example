@@ -1,4 +1,10 @@
-export type ModelId = "deepseek-v3" | "gpt-4o" | "claude-3.5";
+export const MODEL_IDS = ["deepseek-v4-flash", "deepseek-v4-pro"] as const;
+
+export type ModelId = (typeof MODEL_IDS)[number];
+
+export function isModelId(value: unknown): value is ModelId {
+  return typeof value === "string" && MODEL_IDS.includes(value as ModelId);
+}
 
 export type MessageRole = "user" | "assistant";
 

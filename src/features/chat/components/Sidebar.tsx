@@ -1,11 +1,12 @@
-import { CloudIcon, GearSixIcon, GithubLogoIcon } from "@phosphor-icons/react";
 import { cn } from "@/shared/lib/utils";
+import { CloudIcon, GearSixIcon, GithubLogoIcon } from "@phosphor-icons/react";
 import Button from "@shared/ui/components/Button";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useChatSessions, useCurrentSessionId } from "../hooks";
 import { useChatStore } from "../store";
 import type { ChatSession } from "../types";
+import ApiKeyControl from "./ApiKeyControl";
 import Session from "./Session";
 
 function Sidebar() {
@@ -28,7 +29,7 @@ function Sidebar() {
   }, [data, setSessions, sessions.length]);
 
   function newChatClickHandler() {
-    setSelectedModel("deepseek-v3");
+    setSelectedModel("deepseek-v4-flash");
     navigate("/chat");
   }
 
@@ -45,9 +46,7 @@ function Sidebar() {
         </div>
 
         <div>
-          <div className="text-xl font-semibold leading-6">
-            Chat
-          </div>
+          <div className="text-xl font-semibold leading-6">Chat</div>
           <div className="text-sm leading-5 text-muted-foreground">
             Infrastructure Mode
           </div>
@@ -93,10 +92,12 @@ function Sidebar() {
       </div>
 
       <div className="border-t border-sidebar-border px-4 py-4">
+        <ApiKeyControl />
+
         <button
           type="button"
           className={cn(
-            "flex h-10 w-full items-center gap-3 rounded-md px-1 text-left text-[15px] font-semibold text-muted-foreground transition-colors",
+            "mt-3 flex h-10 w-full items-center gap-3 rounded-md px-1 text-left text-[15px] font-semibold text-muted-foreground transition-colors",
             "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
           )}
         >

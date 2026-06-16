@@ -1,15 +1,16 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
+import { sendMessage } from "./api";
 import {
   getChatMessages,
   getChatSessions,
   getPromptCards,
   sendFakeMessage,
-  sendFakeMessageStream,
 } from "./mock";
-import type { ChatMessage } from "./types";
+import type { ChatMessage, ModelId } from "./types";
 
 type StreamingMessageVariables = {
+  model: ModelId;
   content: string;
   onMessage: (message: Omit<ChatMessage, "id">) => void;
   onDone?: () => void;
@@ -51,12 +52,13 @@ export function useSendMessage() {
 
 export function useStreamingMessage() {
   return useMutation<void, Error, StreamingMessageVariables>({
-    mutationFn: ({ content, onMessage, onDone, onError }) =>
-      sendFakeMessageStream(
+    mutationFn: ({ model, content, onMessage, onDone, onError }) =>
+      sendMessage({
+        model,
         content,
         onMessage,
-        onDone ?? (() => undefined),
-        onError ?? (() => undefined),
-      ),
+        onDone: onDone ?? (() => undefined),
+        onError: onError ?? (() => undefined),
+      }),
   });
 }
