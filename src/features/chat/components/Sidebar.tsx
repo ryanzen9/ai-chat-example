@@ -117,7 +117,13 @@ function Sidebar() {
           )}
         >
           <GithubLogoIcon />
-          Github
+          <a
+            href="https://github.com/ryanzen9/ai-chat-example"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Github
+          </a>
         </button>
       </div>
     </aside>
