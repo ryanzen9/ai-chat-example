@@ -295,7 +295,7 @@ function EmptyState() {
   const { data: cards = [], isLoading } = usePromptCards();
 
   return (
-    <div className="mx-auto flex w-full max-w-215 flex-1 flex-col justify-center px-4 pb-24 md:px-0 md:pb-32">
+    <div className="mx-auto flex min-h-0 w-full max-w-215 flex-1 flex-col justify-center overflow-y-auto px-4 py-6 md:px-0 md:pb-32 md:pt-10">
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
         <div className="flex size-12 shrink-0 items-center justify-center rounded-md border border-border bg-card text-primary md:size-13">
           <MagnifyingGlassIcon size={30} weight="bold" />

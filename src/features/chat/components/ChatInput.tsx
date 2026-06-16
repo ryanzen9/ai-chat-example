@@ -42,7 +42,7 @@ export function ChatInput({
   };
 
   return (
-    <div className="w-full shrink-0 px-3 py-3 md:px-6 md:py-4">
+    <div className="w-full shrink-0 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 md:px-6 md:py-4">
       <div
         className="mx-auto flex max-w-3xl items-end gap-2 rounded-xl border border-border bg-card px-3 py-2 shadow-sm transition-colors focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30 data-[streaming=true]:border-primary/40 data-[streaming=true]:ring-2 data-[streaming=true]:ring-primary/15 md:gap-3 md:rounded-2xl md:px-4 md:py-3"
         data-streaming={isStreaming}

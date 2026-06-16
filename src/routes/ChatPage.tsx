@@ -41,7 +41,7 @@ export function ChatPage() {
         </div>
       </div>
 
-      <main className="flex min-w-0 flex-1 flex-col bg-app-shell lg:border-l lg:border-border">
+      <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-app-shell lg:border-l lg:border-border">
         <TopModelBar onOpenSidebar={() => setIsMobileSidebarOpen(true)} />
         <ChatWorkspace />
       </main>
