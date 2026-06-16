@@ -1,17 +1,31 @@
 import { cn } from "@/shared/lib/utils";
 import { AnimatedShinyText } from "@/shared/ui/animated-shiny-text";
-import { lazy, Suspense } from "react";
+import { Button } from "@/shared/ui/button";
+import { RotateCcwIcon } from "lucide-react";
+import { lazy, Suspense, useState, type ReactNode } from "react";
 import { useChatStore } from "../store";
 import type { ChatMessage } from "../types";
 
 const AIMessageMarkdown = lazy(() => import("./AIMessageMarkdown"));
 
-function MessageList({ messages }: { messages: ChatMessage[] }) {
+function MessageList({
+  messages,
+  onRetry,
+}: {
+  messages: ChatMessage[];
+  onRetry?: (message: ChatMessage, index: number) => void;
+}) {
   return (
     <div className="px-6 pb-36 pt-10">
-      <div className="mx-auto flex max-w-[860px] flex-col gap-5">
+      <div className="mx-auto flex max-w-215 flex-col gap-5">
         {messages.map((message, index) => (
-          <MessageBubble key={message.id} message={message} index={index} />
+          <MessageBubble
+            key={message.id}
+            message={message}
+            index={index}
+            onRetry={onRetry}
+            isLast={index === messages.length - 1}
+          />
         ))}
       </div>
     </div>
@@ -21,9 +35,13 @@ function MessageList({ messages }: { messages: ChatMessage[] }) {
 function MessageBubble({
   message,
   index,
+  onRetry,
+  isLast,
 }: {
   message: ChatMessage;
   index: number;
+  onRetry?: (message: ChatMessage, index: number) => void;
+  isLast: boolean;
 }) {
   const isUser = message.role === "user";
   const isFirst = index === 0;
@@ -35,36 +53,132 @@ function MessageBubble({
   const isRenderableContent =
     !status || status === "done" || isError || isCancelled;
 
+  const [toolBarIsVisible, setToolBarIsVisible] = useState(false);
+
   return (
     <div
       className={cn(
         isUser ? "flex justify-end" : "flex justify-start",
         isFirst ? "mt-8" : "",
       )}
+      onMouseEnter={() => setToolBarIsVisible(true && isLast && !isUser)}
+      onMouseLeave={() => setToolBarIsVisible(false)}
     >
-      <div
-        className={cn(
-          "max-w-[72%] rounded border px-4 py-3 text-sm leading-6",
-          isUser
-            ? "whitespace-pre-wrap border-app-brand-border bg-app-brand-soft text-foreground"
-            : "border-border bg-card text-card-foreground",
-          isTalking && "border-primary/40 ring-1 ring-primary/20",
-          isPending && "border-primary/30 bg-muted/40",
-          isError && "border-destructive/40 text-destructive",
+      <div className="group/message flex max-w-[72%] flex-col items-start">
+        <div
+          className={cn(
+            "rounded border px-4 py-3 text-sm leading-6",
+            isUser
+              ? "whitespace-pre-wrap border-app-brand-border bg-app-brand-soft text-foreground"
+              : "border-border bg-card text-card-foreground",
+            isTalking && "border-primary/40 ring-1 ring-primary/20",
+            isPending && "border-primary/30 bg-muted/40",
+            isError && "border-destructive/40 text-destructive",
+          )}
+        >
+          {isPending && <PendingMessage />}
+          {isTalking && <StreamingMessage content={message.content} />}
+          {isRenderableContent &&
+            (isCancelled ? (
+              <span className="text-muted-foreground">{message.content}</span>
+            ) : isUser ? (
+              message.content
+            ) : (
+              <MarkdownContent content={message.content} />
+            ))}
+        </div>
+
+        {!isUser && (
+          <MessageToolBar
+            isShow={toolBarIsVisible}
+            status={status}
+            onRetry={() => onRetry?.(message, index)}
+          />
         )}
-      >
-        {isPending && <PendingMessage />}
-        {isTalking && <StreamingMessage content={message.content} />}
-        {isRenderableContent &&
-          (isCancelled ? (
-            <span className="text-muted-foreground">{message.content}</span>
-          ) : isUser ? (
-            message.content
-          ) : (
-            <MarkdownContent content={message.content} />
-          ))}
       </div>
     </div>
+  );
+}
+
+function MessageToolBar({
+  isShow,
+  status,
+  onRetry,
+}: {
+  isShow: boolean;
+  status: ChatMessage["status"];
+  onRetry?: () => void;
+}) {
+  return (
+    <div
+      className={cn(
+        "mt-1.5 flex h-7 w-full items-center justify-between gap-2 text-xs text-muted-foreground transition-opacity",
+        "focus-within:opacity-100",
+        isShow ? "opacity-100" : "invisible opacity-0 pointer-events-none",
+      )}
+    >
+      <MessageStatus status={status} />
+
+      <Button
+        type="button"
+        size="icon-xs"
+        variant="ghost"
+        title="Retry"
+        aria-label="Retry assistant response"
+        onClick={onRetry}
+      >
+        <RotateCcwIcon data-icon="inline-start" aria-hidden="true" />
+      </Button>
+    </div>
+  );
+}
+
+function MessageStatus({ status }: { status: ChatMessage["status"] }) {
+  if (status === "pending") {
+    return <StatusLabel tone="active">等待响应</StatusLabel>;
+  }
+
+  if (status === "streaming") {
+    return <StatusLabel tone="active">正在输出</StatusLabel>;
+  }
+
+  if (status === "cancelled") {
+    return <StatusLabel tone="muted">已取消</StatusLabel>;
+  }
+
+  if (status === "error") {
+    return <StatusLabel tone="error">失败</StatusLabel>;
+  }
+
+  return <span aria-hidden="true" />;
+}
+
+function StatusLabel({
+  children,
+  tone,
+}: {
+  children: ReactNode;
+  tone: "active" | "muted" | "error";
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-sm px-1.5 py-0.5",
+        tone === "active" && "bg-primary/10 text-primary",
+        tone === "muted" && "bg-muted text-muted-foreground",
+        tone === "error" && "bg-destructive/10 text-destructive",
+      )}
+    >
+      <span
+        className={cn(
+          "size-1.5 rounded-full",
+          tone === "active" && "animate-pulse bg-primary",
+          tone === "muted" && "bg-muted-foreground",
+          tone === "error" && "bg-destructive",
+        )}
+      />
+      {children}
+    </span>
   );
 }
 

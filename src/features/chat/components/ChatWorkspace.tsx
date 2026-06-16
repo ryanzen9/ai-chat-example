@@ -21,7 +21,7 @@ import {
   PencilSimpleLineIcon,
   ShareNetworkIcon,
 } from "@phosphor-icons/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
 import { sendMessage } from "../api";
 import { ChatInput } from "./ChatInput";
@@ -42,6 +42,7 @@ function ChatWorkspace() {
   const appendMessageContent = useChatStore(
     (state) => state.appendMessageContent,
   );
+  const setMessageContent = useChatStore((state) => state.setMessageContent);
   const updateMessageStatus = useChatStore(
     (state) => state.updateMessageStatus,
   );
@@ -74,9 +75,10 @@ function ChatWorkspace() {
     setMessagesBySessionId(currentSessionId, data);
   }, [data, currentSessionId, messagesBySessionId, setMessagesBySessionId]);
 
-  const messages = currentSessionId
-    ? messagesBySessionId[currentSessionId] || []
-    : [];
+  const messages = useMemo(
+    () => (currentSessionId ? messagesBySessionId[currentSessionId] || [] : []),
+    [currentSessionId, messagesBySessionId],
+  );
 
   const currentSession = sessions.find((s) => s.id === currentSessionId);
   const isSessionWorking = currentSession?.isWorking ?? false;
@@ -172,40 +174,75 @@ function ChatWorkspace() {
     };
     appendMessage(sessionId, responseMessage);
 
+    startAssistantStream(sessionId, message, responseMessage.id);
+  }
+
+  function startAssistantStream(
+    sessionId: string,
+    prompt: string,
+    responseMessageId: string,
+  ) {
     const controller = new AbortController();
     registerStreamController(sessionId, controller);
     setSessionWorking(sessionId, true);
 
-    sendMessage({
+    void sendMessage({
       model: selectedModel,
-      content: message,
+      content: prompt,
       signal: controller.signal,
       onMessage: (msg: Omit<ChatMessage, "id">) => {
-        appendMessageContent(sessionId, responseMessage.id, msg.content);
-        updateMessageStatus(sessionId, responseMessage.id, "streaming");
+        appendMessageContent(sessionId, responseMessageId, msg.content);
+        updateMessageStatus(sessionId, responseMessageId, "streaming");
       },
       onDone: () => {
         clearStreamController(sessionId);
         setSessionWorking(sessionId, false);
-        updateMessageStatus(sessionId, responseMessage.id, "done");
+        updateMessageStatus(sessionId, responseMessageId, "done");
       },
       onError: (error) => {
         clearStreamController(sessionId);
         setSessionWorking(sessionId, false);
 
         if (error.name === "AbortError") {
-          updateMessageStatus(sessionId, responseMessage.id, "cancelled");
+          updateMessageStatus(sessionId, responseMessageId, "cancelled");
           return;
         }
 
         appendMessageContent(
           sessionId,
-          responseMessage.id,
+          responseMessageId,
           error.message || "发送失败，请稍后重试。",
         );
-        updateMessageStatus(sessionId, responseMessage.id, "error");
+        updateMessageStatus(sessionId, responseMessageId, "error");
       },
-    });
+    }).catch(() => undefined);
+  }
+
+  function retryAssistantMessage(message: ChatMessage, index: number) {
+    if (!currentSessionId || message.role !== "assistant") return;
+
+    const previousUserMessage = messages
+      .slice(0, index)
+      .findLast((item) => item.role === "user");
+
+    if (!previousUserMessage) {
+      setMessageContent(
+        currentSessionId,
+        message.id,
+        "无法找到上一条用户消息。",
+      );
+      updateMessageStatus(currentSessionId, message.id, "error");
+      return;
+    }
+
+    cancelSessionStream(currentSessionId);
+    setMessageContent(currentSessionId, message.id, "");
+    updateMessageStatus(currentSessionId, message.id, "pending");
+    startAssistantStream(
+      currentSessionId,
+      previousUserMessage.content,
+      message.id,
+    );
   }
 
   return (
@@ -217,7 +254,7 @@ function ChatWorkspace() {
           className="min-h-0 flex-1 rounded-md border"
           viewportRef={viewportRef}
         >
-          <MessageList messages={messages} />
+          <MessageList messages={messages} onRetry={retryAssistantMessage} />
           <ProgressiveBlur position="top" height="10%" />
           <ProgressiveBlur position="bottom" height="10%" />
         </ScrollArea>
@@ -237,13 +274,13 @@ function EmptyState() {
   const { data: cards = [], isLoading } = usePromptCards();
 
   return (
-    <div className="mx-auto flex flex-1 max-w-[860px] flex-col justify-center pb-32">
+    <div className="mx-auto flex flex-1 max-w-215 flex-col justify-center pb-32">
       <div className="flex items-center gap-4 ">
-        <div className="flex size-[52px] items-center justify-center rounded-md border border-border bg-card text-primary">
+        <div className="flex size-13 items-center justify-center rounded-md border border-border bg-card text-primary">
           <MagnifyingGlassIcon size={30} weight="bold" />
         </div>
 
-        <h1 className="text-[40px] font-semibold leading-[48px] text-foreground">
+        <h1 className="text-[40px] font-semibold leading-12 text-foreground">
           How can I help you today?
         </h1>
       </div>
@@ -267,7 +304,7 @@ function EmptyState() {
 
 function PromptSkeleton() {
   return (
-    <div className="h-[106px] animate-pulse rounded-md border border-border bg-card" />
+    <div className="h-26.5 animate-pulse rounded-md border border-border bg-card" />
   );
 }
 
@@ -285,7 +322,7 @@ function PromptCardItem({ card }: { card: PromptCard }) {
   return (
     <button
       onClick={() => setDraft(card.description)}
-      className="group h-[106px] rounded-md border border-border bg-card px-5 py-4 text-left transition hover:border-app-brand-border hover:bg-muted"
+      className="group h-26.5 rounded-md border border-border bg-card px-5 py-4 text-left transition hover:border-app-brand-border hover:bg-muted"
     >
       <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
         <Icon

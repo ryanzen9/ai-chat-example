@@ -46,6 +46,11 @@ type ChatState = {
     messageId: string,
     chunk: string,
   ) => void;
+  setMessageContent: (
+    sessionId: string,
+    messageId: string,
+    content: string,
+  ) => void;
   updateMessageStatus: (
     sessionId: string,
     messageId: string,
@@ -199,6 +204,22 @@ export const useChatStore = create<ChatState>()(
 
             return {
               sessions,
+              messagesBySessionId: {
+                ...state.messagesBySessionId,
+                [sessionId]: messages || [],
+              },
+            };
+          });
+        },
+
+        setMessageContent: (sessionId, messageId, content) => {
+          set((state) => {
+            const messages = state.messagesBySessionId[sessionId]?.map(
+              (message) =>
+                message.id === messageId ? { ...message, content } : message,
+            );
+
+            return {
               messagesBySessionId: {
                 ...state.messagesBySessionId,
                 [sessionId]: messages || [],
