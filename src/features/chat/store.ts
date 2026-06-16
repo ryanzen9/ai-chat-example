@@ -13,12 +13,14 @@ type ChatState = {
   draft: string;
   sessions: ChatSession[];
   messagesBySessionId: Record<string, ChatMessage[]>;
+  enableMarkdown: boolean;
 
   setSelectedModel: (model: ModelId) => void;
   setDraft: (draft: string) => void;
   setSessions: (sessions: ChatSession[]) => void;
   setMessageBySessionId: (sessionId: string, messages: ChatMessage[]) => void;
   setSessionModelId: (sessionId: string, modelId: ModelId) => void;
+  toggleMarkdown: () => void;
 
   appendMessage: (sessionId: string, message: ChatMessage) => void;
   appendMessageContent: (
@@ -42,6 +44,7 @@ export const useChatStore = create<ChatState>()(
         draft: "",
         sessions: [],
         messagesBySessionId: {},
+        enableMarkdown: true,
 
         setSelectedModel: (model) => {
           set({ selectedModel: model });
@@ -70,6 +73,10 @@ export const useChatStore = create<ChatState>()(
               session.id === sessionId ? { ...session, modelId } : session,
             ),
           }));
+        },
+
+        toggleMarkdown: () => {
+          set((state) => ({ enableMarkdown: !state.enableMarkdown }));
         },
 
         appendMessage: (sessionId: string, message: ChatMessage) => {
@@ -180,6 +187,7 @@ export const useChatStore = create<ChatState>()(
           selectedModel: state.selectedModel,
           sessions: state.sessions,
           messagesBySessionId: state.messagesBySessionId,
+          enableMarkdown: state.enableMarkdown,
         }),
       },
     ),

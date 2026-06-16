@@ -1,5 +1,5 @@
 import { ThemeToggle } from "@/shared/theme/theme-toggle";
-import { AppWindowIcon, CodeIcon } from "@phosphor-icons/react";
+import { AppWindowIcon, CodeIcon, ArticleIcon } from "@phosphor-icons/react";
 import { Tabs, TabsList, TabsTrigger } from "@shared/ui/tabs";
 import { useState } from "react";
 import { useCurrentSessionId } from "../hooks";
@@ -93,6 +93,26 @@ function PreviewCodeTabs({
   );
 }
 
+function MarkdownToggle() {
+  const enableMarkdown = useChatStore((state) => state.enableMarkdown);
+  const toggleMarkdown = useChatStore((state) => state.toggleMarkdown);
+
+  return (
+    <Tabs value={enableMarkdown ? "on" : "off"} onValueChange={toggleMarkdown}>
+      <TabsList>
+        <TabsTrigger value="off">
+          <ArticleIcon data-icon="inline-start" />
+          Plain
+        </TabsTrigger>
+        <TabsTrigger value="on">
+          <ArticleIcon data-icon="inline-start" />
+          Markdown
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
+  );
+}
+
 function TopModelBar({
   onViewModelChange,
   onModelChange,
@@ -108,6 +128,7 @@ function TopModelBar({
 
       <div className="ml-auto flex h-full items-center gap-3 px-6 text-muted-foreground">
         <PreviewCodeTabs onViewModelChange={onViewModelChange} />
+        <MarkdownToggle />
         <ThemeToggle />
       </div>
     </header>

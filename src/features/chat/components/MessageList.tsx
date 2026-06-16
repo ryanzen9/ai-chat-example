@@ -1,6 +1,10 @@
 import { cn } from "@/shared/lib/utils";
 import { AnimatedShinyText } from "@/shared/ui/animated-shiny-text";
+import { lazy, Suspense } from "react";
 import type { ChatMessage } from "../types";
+import { useChatStore } from "../store";
+
+const AIMessageMarkdown = lazy(() => import("./AIMessageMarkdown"));
 
 function MessageList({ messages }: { messages: ChatMessage[] }) {
   return (
@@ -40,9 +44,9 @@ function MessageBubble({
     >
       <div
         className={cn(
-          "max-w-[72%] whitespace-pre-wrap rounded border px-4 py-3 text-sm leading-6",
+          "max-w-[72%] rounded border px-4 py-3 text-sm leading-6",
           isUser
-            ? "border-app-brand-border bg-app-brand-soft text-foreground"
+            ? "whitespace-pre-wrap border-app-brand-border bg-app-brand-soft text-foreground"
             : "border-border bg-card text-card-foreground",
           isTalking && "border-primary/40 ring-1 ring-primary/20",
           isPending && "border-primary/30 bg-muted/40",
@@ -54,8 +58,10 @@ function MessageBubble({
         {isRenderableContent &&
           (isCancelled ? (
             <span className="text-muted-foreground">{message.content}</span>
-          ) : (
+          ) : isUser ? (
             message.content
+          ) : (
+            <MarkdownContent content={message.content} />
           ))}
       </div>
     </div>
@@ -75,12 +81,27 @@ function PendingMessage() {
 
 function StreamingMessage({ content }: { content: string }) {
   return (
-    <span>
-      {content}
-      <AnimatedShinyText className="mx-0 ml-1 inline-block max-w-none text-primary">
-        ▍
-      </AnimatedShinyText>
-    </span>
+    <MarkdownContent content={content} isStreaming />
+  );
+}
+
+function MarkdownContent({
+  content,
+  isStreaming,
+}: {
+  content: string;
+  isStreaming?: boolean;
+}) {
+  const enableMarkdown = useChatStore((state) => state.enableMarkdown);
+
+  if (!enableMarkdown) {
+    return <span className="whitespace-pre-wrap">{content}</span>;
+  }
+
+  return (
+    <Suspense fallback={<span className="whitespace-pre-wrap">{content}</span>}>
+      <AIMessageMarkdown content={content} isStreaming={isStreaming} />
+    </Suspense>
   );
 }
 

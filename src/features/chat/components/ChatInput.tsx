@@ -4,6 +4,7 @@ import { LoaderCircle, Mic, Paperclip, Send } from "lucide-react";
 
 import { Button } from "@shared/ui/button";
 import { Textarea } from "@shared/ui/textarea";
+import React from "react";
 
 export function ChatInput({
   value,
@@ -17,6 +18,7 @@ export function ChatInput({
   isStreaming?: boolean;
 }) {
   const canSend = Boolean(value?.trim()) && !isStreaming;
+  const textarea = React.useRef<HTMLTextAreaElement>(null);
 
   function handleSubmit() {
     const message = value?.trim();
@@ -32,6 +34,13 @@ export function ChatInput({
       onChange(value);
     }
   }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
 
   return (
     <div className="w-full shrink-0 px-6 py-4">
@@ -56,12 +65,7 @@ export function ChatInput({
           placeholder="输入消息..."
           className="max-h-40 min-h-8 flex-1 resize-none border-0 bg-transparent px-0 py-0 shadow-none focus-visible:ring-0"
           disabled={isStreaming}
-          onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSubmit();
-            }
-          }}
+          onKeyDown={handleKeyDown}
         />
 
         <Button

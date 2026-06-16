@@ -18,7 +18,7 @@ import {
   PencilSimpleLineIcon,
   ShareNetworkIcon,
 } from "@phosphor-icons/react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { ChatInput } from "./ChatInput";
 import MessageList from "./MessageList";
@@ -69,6 +69,21 @@ function ChatWorkspace() {
   const messages = currentSessionId
     ? messagesBySessionId[currentSessionId] || []
     : [];
+
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const isStreaming = messages.some((m) => m.status === "streaming");
+
+  useEffect(() => {
+    if (!viewportRef.current) return;
+
+    // 流式输出时始终跟随最新内容；非流式时不自动滚动
+    if (isStreaming) {
+      viewportRef.current.scrollTo({
+        top: viewportRef.current.scrollHeight,
+        behavior: "instant",
+      });
+    }
+  }, [messages, isStreaming]);
 
   if (isLoading) {
     return (
@@ -141,7 +156,7 @@ function ChatWorkspace() {
       {messages.length === 0 ? (
         <EmptyState />
       ) : (
-        <ScrollArea className="min-h-0 flex-1 rounded-md border">
+        <ScrollArea className="min-h-0 flex-1 rounded-md border" viewportRef={viewportRef}>
           <MessageList messages={messages} />
           <ProgressiveBlur position="top" height="10%" />
           <ProgressiveBlur position="bottom" height="10%" />

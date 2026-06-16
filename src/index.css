@@ -1,8 +1,18 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-
+@plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
 
 :root {
   color-scheme: light;
@@ -161,16 +171,6 @@
   --app-brand-border: var(--amber-700);
 }
 
-html,
-body,
-#root {
-  height: 100%;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
@@ -225,20 +225,23 @@ body,
   --radius-4xl: calc(var(--radius) * 5);
   --animate-gradient: gradient 8s linear infinite;
   @keyframes gradient {
-  to {
-    background-position: var(--bg-size, 300%) 0;
+    to {
+      background-position: var(--bg-size, 300%) 0;
     }
   }
-  --animate-shiny-text: shiny-text 8s infinite
-;
+  --animate-shiny-text: shiny-text 8s infinite;
   @keyframes shiny-text {
-  0%, 90%, 100% {
-    background-position: calc(-100% - var(--shiny-width)) 0;
+    0%,
+    90%,
+    100% {
+      background-position: calc(-100% - var(--shiny-width)) 0;
     }
-  30%, 60% {
-    background-position: calc(100% + var(--shiny-width)) 0;
+    30%,
+    60% {
+      background-position: calc(100% + var(--shiny-width)) 0;
     }
-  }}
+  }
+}
 
 @layer base {
   * {
@@ -252,5 +255,151 @@ body,
   body {
     @apply bg-background text-foreground antialiased;
     margin: 0;
+  }
+}
+
+@layer components {
+  /* highlight.js base — light mode */
+  .ai-markdown .hljs {
+    color: var(--neutral-900);
+    background: var(--neutral-100);
+  }
+
+  /* Keywords */
+  .ai-markdown .hljs-keyword,
+  .ai-markdown .hljs-selector-tag,
+  .ai-markdown .hljs-doctag,
+  .ai-markdown .hljs-meta .hljs-keyword,
+  .ai-markdown .hljs-template-tag {
+    color: #d73a49;
+  }
+
+  /* Strings */
+  .ai-markdown .hljs-string,
+  .ai-markdown .hljs-attr,
+  .ai-markdown .hljs-symbol,
+  .ai-markdown .hljs-regexp,
+  .ai-markdown .hljs-template-variable {
+    color: var(--blue-700);
+  }
+
+  /* Numbers & literals */
+  .ai-markdown .hljs-number,
+  .ai-markdown .hljs-literal,
+  .ai-markdown .hljs-built_in,
+  .ai-markdown .hljs-variable {
+    color: #005cc5;
+  }
+
+  /* Comments */
+  .ai-markdown .hljs-comment,
+  .ai-markdown .hljs-quote {
+    color: var(--neutral-500);
+  }
+
+  /* Types & classes */
+  .ai-markdown .hljs-type,
+  .ai-markdown .hljs-class .hljs-title,
+  .ai-markdown .hljs-title.class_ {
+    color: #6f42c1;
+  }
+
+  /* Functions */
+  .ai-markdown .hljs-title.function_,
+  .ai-markdown .hljs-section {
+    color: #6f42c1;
+  }
+
+  /* Tags */
+  .ai-markdown .hljs-name,
+  .ai-markdown .hljs-tag,
+  .ai-markdown .hljs-meta {
+    color: #22863a;
+  }
+
+  /* Emphasis */
+  .ai-markdown .hljs-emphasis {
+    font-style: italic;
+  }
+
+  .ai-markdown .hljs-strong {
+    font-weight: 700;
+  }
+
+  /* Links */
+  .ai-markdown .hljs-link {
+    text-decoration: underline;
+  }
+
+  /* Additions & deletions */
+  .ai-markdown .hljs-addition {
+    color: #22863a;
+    background: #f0fff4;
+  }
+
+  .ai-markdown .hljs-deletion {
+    color: #b31d28;
+    background: #ffeef0;
+  }
+
+  /* ── dark mode overrides ── */
+  .dark .ai-markdown .hljs {
+    color: #e6edf3;
+    background: var(--neutral-850);
+  }
+
+  .dark .ai-markdown .hljs-keyword,
+  .dark .ai-markdown .hljs-selector-tag,
+  .dark .ai-markdown .hljs-doctag,
+  .dark .ai-markdown .hljs-meta .hljs-keyword,
+  .dark .ai-markdown .hljs-template-tag {
+    color: #ff7b72;
+  }
+
+  .dark .ai-markdown .hljs-string,
+  .dark .ai-markdown .hljs-attr,
+  .dark .ai-markdown .hljs-symbol,
+  .dark .ai-markdown .hljs-regexp,
+  .dark .ai-markdown .hljs-template-variable {
+    color: #a5d6ff;
+  }
+
+  .dark .ai-markdown .hljs-number,
+  .dark .ai-markdown .hljs-literal,
+  .dark .ai-markdown .hljs-built_in,
+  .dark .ai-markdown .hljs-variable {
+    color: #79c0ff;
+  }
+
+  .dark .ai-markdown .hljs-comment,
+  .dark .ai-markdown .hljs-quote {
+    color: var(--muted-foreground);
+  }
+
+  .dark .ai-markdown .hljs-type,
+  .dark .ai-markdown .hljs-class .hljs-title,
+  .dark .ai-markdown .hljs-title.class_ {
+    color: #d2a8ff;
+  }
+
+  .dark .ai-markdown .hljs-title.function_,
+  .dark .ai-markdown .hljs-section {
+    color: #d2a8ff;
+  }
+
+  .dark .ai-markdown .hljs-name,
+  .dark .ai-markdown .hljs-tag,
+  .dark .ai-markdown .hljs-meta {
+    color: #7ee787;
+  }
+
+  .dark .ai-markdown .hljs-addition {
+    color: #7ee787;
+    background: #033a16;
+  }
+
+  .dark .ai-markdown .hljs-deletion {
+    color: #ffa198;
+    background: #490202;
   }
 }
