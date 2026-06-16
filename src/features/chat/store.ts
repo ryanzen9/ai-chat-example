@@ -22,6 +22,7 @@ export function clearStreamController(sessionId: string) {
 }
 
 type ChatState = {
+  userId: string;
   selectedModel: ModelId;
   draft: string;
   sessions: ChatSession[];
@@ -64,6 +65,7 @@ export const useChatStore = create<ChatState>()(
     persist(
       (set) => ({
         selectedModel: "deepseek-v4-flash",
+        userId: crypto.randomUUID(),
         draft: "",
         sessions: [],
         messagesBySessionId: {},
@@ -276,6 +278,7 @@ export const useChatStore = create<ChatState>()(
             selectedModel: isModelId(state.selectedModel)
               ? state.selectedModel
               : "deepseek-v4-flash",
+            userId: state.userId || crypto.randomUUID(),
             sessions: state.sessions?.map((session) => ({
               ...session,
               isWorking: false,

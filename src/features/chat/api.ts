@@ -1,5 +1,5 @@
-import type { ChatMessage, ModelId } from "./types";
 import { useChatStore } from "./store";
+import type { ChatMessage, ModelId } from "./types";
 
 export type Conversation = {
   id: string;
@@ -22,6 +22,8 @@ type DeepSeekRequest = {
   messages: DeepSeekMessage[];
 
   model: string;
+
+  user_id?: string;
 
   thinking?: {
     type: "enabled" | "disabled";
@@ -111,7 +113,9 @@ export async function getMessages(conversationId: string): Promise<Message[]> {
 }
 
 export async function sendMessage(input: {
+  userId: string;
   model: ModelId;
+  history: DeepSeekMessage[];
   content: string;
   signal?: AbortSignal;
   onMessage: (message: Omit<ChatMessage, "id">) => void;
@@ -179,7 +183,9 @@ export async function sendMessage(input: {
 
     const requestBody: DeepSeekRequest = {
       model: input.model,
+      user_id: input.userId,
       messages: [
+        ...input.history,
         {
           role: "user",
           content: input.content,

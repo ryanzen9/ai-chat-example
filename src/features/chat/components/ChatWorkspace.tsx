@@ -32,6 +32,7 @@ function ChatWorkspace() {
     (state) => state.messagesBySessionId,
   );
   const draft = useChatStore((state) => state.draft);
+  const userId = useChatStore((state) => state.userId);
   const setDraft = useChatStore((state) => state.setDraft);
   const currentSessionId = useCurrentSessionId();
   const setMessagesBySessionId = useChatStore(
@@ -135,6 +136,14 @@ function ChatWorkspace() {
     );
   }
 
+  function getSessionHistory(sessionId: string) {
+    const sessionMessages = messagesBySessionId[sessionId] || [];
+    return sessionMessages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
+  }
+
   function onSend(message: string) {
     const session: ChatSession = {
       id: crypto.randomUUID(),
@@ -174,11 +183,22 @@ function ChatWorkspace() {
     };
     appendMessage(sessionId, responseMessage);
 
-    startAssistantStream(sessionId, message, responseMessage.id);
+    startAssistantStream(
+      userId,
+      sessionId,
+      [...getSessionHistory(sessionId)],
+      message,
+      responseMessage.id,
+    );
   }
 
   function startAssistantStream(
+    userId: string,
     sessionId: string,
+    history: {
+      role: "user" | "assistant";
+      content: string;
+    }[],
     prompt: string,
     responseMessageId: string,
   ) {
@@ -187,6 +207,8 @@ function ChatWorkspace() {
     setSessionWorking(sessionId, true);
 
     void sendMessage({
+      userId,
+      history,
       model: selectedModel,
       content: prompt,
       signal: controller.signal,
@@ -239,7 +261,9 @@ function ChatWorkspace() {
     setMessageContent(currentSessionId, message.id, "");
     updateMessageStatus(currentSessionId, message.id, "pending");
     startAssistantStream(
+      userId,
       currentSessionId,
+      [...getSessionHistory(currentSessionId)],
       previousUserMessage.content,
       message.id,
     );
